@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Button, Card, Descriptions, Typography, Empty, Toast } from '@douyinfe/semi-ui';
 import { IconArrowLeft, IconStar, IconStarStroked } from '@douyinfe/semi-icons';
 import { ElevationChart, type ChartMarkerPoint } from '../components/ElevationChart';
-import { getTrailById } from '../utils/trails';
+import { getTrailById, findMaxElevationIndex } from '../utils/trails';
 import { isFavorite, toggleFavorite } from '../utils/favorites';
 
 const { Title, Paragraph } = Typography;
@@ -61,32 +61,37 @@ export function TrailDetail() {
   ];
 
   const profile = trail.elevationProfile;
-  let maxIndex = 0;
-  let maxElevation = profile[0].elevation;
-  for (let i = 1; i < profile.length; i++) {
-    if (profile[i].elevation > maxElevation) {
-      maxElevation = profile[i].elevation;
-      maxIndex = i;
-    }
-  }
+  const maxIndex = findMaxElevationIndex(profile);
 
-  const chartMarkers: ChartMarkerPoint[] = [
-    {
+  const chartMarkers: ChartMarkerPoint[] = [];
+
+  if (profile.length > 0) {
+    chartMarkers.push({
       index: 0,
       label: '起点',
       color: '#52c41a',
-    },
-    {
-      index: maxIndex,
-      label: '最高点',
-      color: '#f5222d',
-    },
-    {
-      index: profile.length - 1,
-      label: '终点',
-      color: '#1890ff',
-    },
-  ];
+    });
+
+    if (maxIndex >= 0 && maxIndex !== 0 && maxIndex !== profile.length - 1) {
+      chartMarkers.push({
+        index: maxIndex,
+        label: '最高点',
+        color: '#f5222d',
+      });
+    }
+
+    if (profile.length > 1) {
+      chartMarkers.push({
+        index: profile.length - 1,
+        label: '终点',
+        color: '#1890ff',
+      });
+    }
+
+    if (profile.length === 1) {
+      chartMarkers[0].label = '起终点';
+    }
+  }
 
   return (
     <div className="page-container">

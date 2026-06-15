@@ -1,5 +1,5 @@
 import ReactECharts from 'echarts-for-react';
-import type { EChartsOption } from 'echarts';
+import type { EChartsOption, MarkPointComponentOption } from 'echarts';
 import type { ElevationPoint } from '../types/trail';
 
 export interface ChartMarkerPoint {
@@ -25,11 +25,20 @@ export function ElevationChart({ data, markers = [] }: ElevationChartProps) {
   const distances = data.map((point) => point.distance);
   const elevations = data.map((point) => point.elevation);
 
-  const markPointData = markers.map((marker) => {
+  const validMarkers = markers.filter(
+    (marker) => marker.index >= 0 && marker.index < data.length
+  );
+
+  const markerMap = new Map<string, ChartMarkerPoint>();
+  validMarkers.forEach((marker) => {
+    markerMap.set(marker.label, marker);
+  });
+
+  const markPointData: MarkPointComponentOption['data'] = validMarkers.map((marker) => {
     const point = data[marker.index];
     return {
       name: marker.label,
-      coord: [marker.index, point.elevation],
+      coord: [marker.index, point.elevation] as [number, number],
       value: point.elevation,
       itemStyle: {
         color: marker.color,
@@ -42,9 +51,6 @@ export function ElevationChart({ data, markers = [] }: ElevationChartProps) {
         fontWeight: 'bold' as const,
         fontSize: 12,
       },
-      symbolSize: 14,
-      markerData: marker,
-      pointData: point,
     };
   });
 
@@ -58,22 +64,45 @@ export function ElevationChart({ data, markers = [] }: ElevationChartProps) {
       },
     },
     tooltip: {
-      trigger: 'item',
-      formatter: (params: any) => {
-        if (params.componentType === 'markPoint') {
-          const point = params.data?.pointData;
-          const marker = params.data?.markerData;
-          if (point && marker) {
-            return `<b style="color:${marker.color}">${marker.label}</b><br/>里程：${point.distance.toFixed(1)} km<br/>海拔：${point.elevation} m`;
+      trigger: 'axis',
+      axisPointer: {
+        type: 'line',
+      },
+      formatter: (params) => {
+        const paramArray = Array.isArray(params) ? params : [params];
+        if (paramArray.length === 0) {
+          return '';
+        }
+
+        const markPointItem = paramArray.find(
+          (item) => (item as { componentType: string }).componentType === 'markPoint'
+        );
+
+        if (markPointItem) {
+          const markerName = (markPointItem as { name?: string }).name;
+          if (markerName) {
+            const marker = markerMap.get(markerName);
+            if (marker) {
+              const point = data[marker.index];
+              return `<b style="color:${marker.color}">${marker.label}</b><br/>里程：${point.distance.toFixed(1)} km<br/>海拔：${point.elevation} m`;
+            }
           }
-          return '';
         }
-        const item = Array.isArray(params) ? params[0] : params;
-        if (!item || typeof item.dataIndex !== 'number') {
-          return '';
+
+        const seriesItem = paramArray.find(
+          (item) => (item as { componentType: string }).componentType === 'series'
+        );
+        if (seriesItem) {
+          const dataIndex = (seriesItem as { dataIndex?: number }).dataIndex;
+          if (typeof dataIndex === 'number') {
+            const point = data[dataIndex];
+            if (point) {
+              return `里程：${point.distance.toFixed(1)} km<br/>海拔：${point.elevation} m`;
+            }
+          }
         }
-        const point = data[item.dataIndex];
-        return `里程：${point.distance.toFixed(1)} km<br/>海拔：${point.elevation} m`;
+
+        return '';
       },
     },
     grid: {
@@ -131,7 +160,7 @@ export function ElevationChart({ data, markers = [] }: ElevationChartProps) {
             fontSize: 11,
             fontWeight: 'bold',
           },
-          data: markPointData as any,
+          data: markPointData,
         },
         data: elevations,
       },

@@ -1,4 +1,4 @@
-import type { Trail } from '../types/trail';
+import type { Trail, ElevationPoint } from '../types/trail';
 import trailsData from '../mock/trails.json';
 
 const trails = trailsData as Trail[];
@@ -91,4 +91,37 @@ export function filterTrails(trails: Trail[], filter: TrailFilter): Trail[] {
     }
     return true;
   });
+}
+
+/**
+ * 从海拔剖面数组中找出海拔最高点的索引
+ *
+ * @param profile 海拔剖面采样点数组
+ * @returns 最高点在数组中的索引。若数组为空则返回 -1。
+ *          若存在多个相同最高海拔的点，返回第一个出现的索引。
+ *
+ * @example
+ * ```ts
+ * const profile = [
+ *   { distance: 0, elevation: 100 },
+ *   { distance: 1, elevation: 300 },
+ *   { distance: 2, elevation: 200 },
+ * ];
+ * const maxIndex = findMaxElevationIndex(profile);
+ * // => 1
+ * ```
+ */
+export function findMaxElevationIndex(profile: ElevationPoint[]): number {
+  if (profile.length === 0) {
+    return -1;
+  }
+  let maxIndex = 0;
+  let maxElevation = profile[0].elevation;
+  for (let i = 1; i < profile.length; i++) {
+    if (profile[i].elevation > maxElevation) {
+      maxElevation = profile[i].elevation;
+      maxIndex = i;
+    }
+  }
+  return maxIndex;
 }
