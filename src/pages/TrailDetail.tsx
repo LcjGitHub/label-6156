@@ -1,12 +1,13 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { Button, Card, Descriptions, Typography, Empty, Toast, TextArea } from '@douyinfe/semi-ui';
-import { IconArrowLeft, IconStar, IconStarStroked, IconEditStroked } from '@douyinfe/semi-icons';
+import { IconArrowLeft, IconStar, IconStarStroked, IconEditStroked, IconShareStroked } from '@douyinfe/semi-icons';
 import { ElevationChart, type ChartMarkerPoint } from '../components/ElevationChart';
 import { getTrailById, findMaxElevationIndex, calculateElevationStats } from '../utils/trails';
 import { isFavorite, toggleFavorite } from '../utils/favorites';
 import { addHistory } from '../utils/history';
 import { getNote, setNote } from '../utils/notes';
+import { copyToClipboard } from '../utils/clipboard';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -56,6 +57,17 @@ export function TrailDetail() {
     const newStatus = toggleFavorite(id);
     setFavorited(newStatus);
     Toast.success(newStatus ? '已添加到收藏' : '已取消收藏');
+  };
+
+  const handleShare = async () => {
+    if (!trail) return;
+    const shareText = `${trail.name}\n${window.location.href}`;
+    const success = await copyToClipboard(shareText);
+    if (success) {
+      Toast.success('分享链接已复制到剪贴板');
+    } else {
+      Toast.error('复制失败，请手动复制');
+    }
   };
 
   if (!trail) {
@@ -141,13 +153,22 @@ export function TrailDetail() {
       <Card style={{ marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Title heading={3} style={{ margin: 0 }}>{trail.name}</Title>
-          <Button
-            icon={favorited ? <IconStar style={{ color: '#FFC107' }} /> : <IconStarStroked />}
-            theme={favorited ? 'solid' : 'borderless'}
-            onClick={handleToggleFavorite}
-          >
-            {favorited ? '已收藏' : '收藏'}
-          </Button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Button
+              icon={<IconShareStroked />}
+              theme="borderless"
+              onClick={handleShare}
+            >
+              分享
+            </Button>
+            <Button
+              icon={favorited ? <IconStar style={{ color: '#FFC107' }} /> : <IconStarStroked />}
+              theme={favorited ? 'solid' : 'borderless'}
+              onClick={handleToggleFavorite}
+            >
+              {favorited ? '已收藏' : '收藏'}
+            </Button>
+          </div>
         </div>
         <Paragraph type="secondary" style={{ marginTop: 8 }}>
           {trail.description}
