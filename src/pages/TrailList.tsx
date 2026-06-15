@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { Table, Typography, Card, Switch, Space, Empty, Select, Button, Tag, Toast } from '@douyinfe/semi-ui';
-import { IconStar, IconStarStroked, IconRefresh, IconHistory, IconLayers } from '@douyinfe/semi-icons';
+import { Table, Typography, Card, Switch, Space, Empty, Select, Button, Tag, Toast, Input } from '@douyinfe/semi-ui';
+import { IconStar, IconStarStroked, IconRefresh, IconHistory, IconLayers, IconSearch } from '@douyinfe/semi-icons';
 import type { Trail } from '../types/trail';
 import { getAllTrails, getAllDifficulties, getGroupedRegions, filterTrails, type TrailFilter } from '../utils/trails';
 import { getFavoriteIds } from '../utils/favorites';
@@ -23,7 +23,7 @@ export function TrailList() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
-  const hasActiveFilter = !!(filter.difficulty || filter.region);
+  const hasActiveFilter = !!(filter.difficulty || filter.region || filter.keyword);
 
   const refreshFavorites = useCallback(() => {
     setRefreshTick((t) => t + 1);
@@ -206,6 +206,13 @@ export function TrailList() {
         )}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, padding: 16, backgroundColor: 'rgba(0,0,0,0.02)', borderRadius: 6 }}>
           <Text strong style={{ whiteSpace: 'nowrap' }}>筛选条件：</Text>
+          <Input
+            placeholder="搜索路线名称或区域"
+            style={{ width: 260 }}
+            prefix={<IconSearch />}
+            value={filter.keyword || ''}
+            onChange={(value) => setFilter({ ...filter, keyword: value })}
+          />
           <Select
             placeholder="选择难度"
             style={{ width: 180 }}
@@ -236,7 +243,7 @@ export function TrailList() {
           <Button
             icon={<IconRefresh />}
             onClick={handleResetFilter}
-            disabled={!filter.difficulty && !filter.region}
+            disabled={!filter.difficulty && !filter.region && !filter.keyword}
           >
             重置
           </Button>
@@ -248,6 +255,8 @@ export function TrailList() {
           {showFavoritesOnly && hasActiveFilter && (
             <>
               （筛选条件：
+              {filter.keyword && `关键词="${filter.keyword}"`}
+              {filter.keyword && (filter.difficulty || filter.region) && '，'}
               {filter.difficulty && `难度=${filter.difficulty}`}
               {filter.difficulty && filter.region && '，'}
               {filter.region && `区域=${filter.region}`}

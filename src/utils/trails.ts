@@ -74,6 +74,7 @@ export function getGroupedRegions(): RegionGroup[] {
 export interface TrailFilter {
   difficulty?: string;
   region?: string;
+  keyword?: string;
 }
 
 /**
@@ -89,8 +90,25 @@ export function filterTrails(trails: Trail[], filter: TrailFilter): Trail[] {
     if (filter.region && trail.region !== filter.region) {
       return false;
     }
+    if (filter.keyword && !fuzzyMatchKeyword(trail, filter.keyword)) {
+      return false;
+    }
     return true;
   });
+}
+
+/**
+ * 模糊匹配关键词（匹配路线名称或区域）
+ * @param trail 路线对象
+ * @param keyword 搜索关键词
+ * @returns 是否匹配
+ */
+export function fuzzyMatchKeyword(trail: Trail, keyword: string): boolean {
+  const lowerKeyword = keyword.toLowerCase();
+  return (
+    trail.name.toLowerCase().includes(lowerKeyword) ||
+    trail.region.toLowerCase().includes(lowerKeyword)
+  );
 }
 
 /**
