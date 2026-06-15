@@ -77,6 +77,8 @@ export interface TrailFilter {
   keyword?: string;
   minDistance?: number;
   maxDistance?: number;
+  minElevationGain?: number;
+  maxElevationGain?: number;
 }
 
 /**
@@ -100,6 +102,12 @@ export function filterTrails(trails: Trail[], filter: TrailFilter): Trail[] {
       return false;
     }
     if (filter.maxDistance !== undefined && trail.distance > filter.maxDistance) {
+      return false;
+    }
+    if (filter.minElevationGain !== undefined && trail.elevationGain < filter.minElevationGain) {
+      return false;
+    }
+    if (filter.maxElevationGain !== undefined && trail.elevationGain > filter.maxElevationGain) {
       return false;
     }
     return true;

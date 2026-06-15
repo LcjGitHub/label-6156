@@ -35,7 +35,7 @@ export function TrailList() {
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
 
-  const hasActiveFilter = !!(filter.difficulty || filter.region || filter.keyword || filter.minDistance !== undefined || filter.maxDistance !== undefined);
+  const hasActiveFilter = !!(filter.difficulty || filter.region || filter.keyword || filter.minDistance !== undefined || filter.maxDistance !== undefined || filter.minElevationGain !== undefined || filter.maxElevationGain !== undefined);
 
   const sortFieldLabelMap: Record<string, string> = {
     distance: '里程',
@@ -450,10 +450,28 @@ export function TrailList() {
               </Select.OptGroup>
             ))}
           </Select>
+          <InputNumber
+            placeholder="最小爬升"
+            style={{ width: 140 }}
+            min={0}
+            step={10}
+            value={filter.minElevationGain}
+            onChange={(value: string | number) => setFilter({ ...filter, minElevationGain: value !== '' ? Number(value) : undefined })}
+            suffix="m"
+          />
+          <InputNumber
+            placeholder="最大爬升"
+            style={{ width: 140 }}
+            min={0}
+            step={10}
+            value={filter.maxElevationGain}
+            onChange={(value: string | number) => setFilter({ ...filter, maxElevationGain: value !== '' ? Number(value) : undefined })}
+            suffix="m"
+          />
           <Button
             icon={<IconRefresh />}
             onClick={handleResetFilter}
-            disabled={!filter.difficulty && !filter.region && !filter.keyword && filter.minDistance === undefined && filter.maxDistance === undefined}
+            disabled={!filter.difficulty && !filter.region && !filter.keyword && filter.minDistance === undefined && filter.maxDistance === undefined && filter.minElevationGain === undefined && filter.maxElevationGain === undefined}
           >
             重置
           </Button>
@@ -465,13 +483,17 @@ export function TrailList() {
             <>
               （筛选条件：
               {filter.keyword && `关键词="${filter.keyword}"`}
-              {filter.keyword && (filter.difficulty || filter.region || filter.minDistance !== undefined || filter.maxDistance !== undefined) && '，'}
+              {filter.keyword && (filter.difficulty || filter.region || filter.minDistance !== undefined || filter.maxDistance !== undefined || filter.minElevationGain !== undefined || filter.maxElevationGain !== undefined) && '，'}
               {filter.difficulty && `难度=${filter.difficulty}`}
-              {filter.difficulty && (filter.region || filter.minDistance !== undefined || filter.maxDistance !== undefined) && '，'}
+              {filter.difficulty && (filter.region || filter.minDistance !== undefined || filter.maxDistance !== undefined || filter.minElevationGain !== undefined || filter.maxElevationGain !== undefined) && '，'}
               {filter.minDistance !== undefined && `最小里程=${filter.minDistance}km`}
-              {filter.minDistance !== undefined && (filter.maxDistance !== undefined || filter.region) && '，'}
+              {filter.minDistance !== undefined && (filter.maxDistance !== undefined || filter.region || filter.minElevationGain !== undefined || filter.maxElevationGain !== undefined) && '，'}
               {filter.maxDistance !== undefined && `最大里程=${filter.maxDistance}km`}
-              {(filter.minDistance !== undefined || filter.maxDistance !== undefined) && filter.region && '，'}
+              {(filter.minDistance !== undefined || filter.maxDistance !== undefined) && (filter.region || filter.minElevationGain !== undefined || filter.maxElevationGain !== undefined) && '，'}
+              {filter.minElevationGain !== undefined && `最小爬升=${filter.minElevationGain}m`}
+              {filter.minElevationGain !== undefined && (filter.maxElevationGain !== undefined || filter.region) && '，'}
+              {filter.maxElevationGain !== undefined && `最大爬升=${filter.maxElevationGain}m`}
+              {(filter.minElevationGain !== undefined || filter.maxElevationGain !== undefined) && filter.region && '，'}
               {filter.region && `区域=${filter.region}`}
               {`，共 ${filteredTrails.length} 条路线${sortDescription}）`}
             </>
@@ -480,13 +502,17 @@ export function TrailList() {
             <>
               （筛选条件：
               {filter.keyword && `关键词="${filter.keyword}"`}
-              {filter.keyword && (filter.difficulty || filter.region || filter.minDistance !== undefined || filter.maxDistance !== undefined) && '，'}
+              {filter.keyword && (filter.difficulty || filter.region || filter.minDistance !== undefined || filter.maxDistance !== undefined || filter.minElevationGain !== undefined || filter.maxElevationGain !== undefined) && '，'}
               {filter.difficulty && `难度=${filter.difficulty}`}
-              {filter.difficulty && (filter.region || filter.minDistance !== undefined || filter.maxDistance !== undefined) && '，'}
+              {filter.difficulty && (filter.region || filter.minDistance !== undefined || filter.maxDistance !== undefined || filter.minElevationGain !== undefined || filter.maxElevationGain !== undefined) && '，'}
               {filter.minDistance !== undefined && `最小里程=${filter.minDistance}km`}
-              {filter.minDistance !== undefined && (filter.maxDistance !== undefined || filter.region) && '，'}
+              {filter.minDistance !== undefined && (filter.maxDistance !== undefined || filter.region || filter.minElevationGain !== undefined || filter.maxElevationGain !== undefined) && '，'}
               {filter.maxDistance !== undefined && `最大里程=${filter.maxDistance}km`}
-              {(filter.minDistance !== undefined || filter.maxDistance !== undefined) && filter.region && '，'}
+              {(filter.minDistance !== undefined || filter.maxDistance !== undefined) && (filter.region || filter.minElevationGain !== undefined || filter.maxElevationGain !== undefined) && '，'}
+              {filter.minElevationGain !== undefined && `最小爬升=${filter.minElevationGain}m`}
+              {filter.minElevationGain !== undefined && (filter.maxElevationGain !== undefined || filter.region) && '，'}
+              {filter.maxElevationGain !== undefined && `最大爬升=${filter.maxElevationGain}m`}
+              {(filter.minElevationGain !== undefined || filter.maxElevationGain !== undefined) && filter.region && '，'}
               {filter.region && `区域=${filter.region}`}
               {`，共 ${filteredTrails.length} 条收藏路线${sortDescription}）`}
             </>
