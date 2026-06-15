@@ -5,6 +5,7 @@ import { TrailDetail } from './pages/TrailDetail';
 import { TrailCompare } from './pages/TrailCompare';
 import { TrailStats } from './pages/TrailStats';
 import { TrailRecommend } from './pages/TrailRecommend';
+import { Favorites } from './pages/Favorites';
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
@@ -28,6 +29,7 @@ function App() {
             <Route path="/compare" element={<TrailCompare />} />
             <Route path="/stats" element={<TrailStats />} />
             <Route path="/recommend" element={<TrailRecommend />} />
+            <Route path="/favorites" element={<Favorites />} />
           </Routes>
         </Content>
       </Layout>

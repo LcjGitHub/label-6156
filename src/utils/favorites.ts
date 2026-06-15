@@ -71,3 +71,10 @@ export function toggleFavorite(id: string): boolean {
     return true;
   }
 }
+
+/**
+ * 清空全部收藏
+ */
+export function clearAllFavorites(): void {
+  writeFavorites([]);
+}
