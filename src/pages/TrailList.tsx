@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Table, Typography, Card, Switch, Space, Empty, Select, Button, Tag, Toast, Input } from '@douyinfe/semi-ui';
-import { IconStar, IconStarStroked, IconRefresh, IconHistory, IconLayers, IconSearch } from '@douyinfe/semi-icons';
+import { IconStar, IconStarStroked, IconRefresh, IconHistory, IconLayers, IconSearch, IconClose } from '@douyinfe/semi-icons';
 import type { Trail } from '../types/trail';
 import { getAllTrails, getAllDifficulties, getGroupedRegions, filterTrails, type TrailFilter } from '../utils/trails';
 import { getFavoriteIds } from '../utils/favorites';
@@ -210,6 +210,14 @@ export function TrailList() {
             placeholder="搜索路线名称或区域"
             style={{ width: 260 }}
             prefix={<IconSearch />}
+            suffix={
+              filter.keyword ? (
+                <IconClose
+                  style={{ cursor: 'pointer', color: 'rgba(0,0,0,0.45)' }}
+                  onClick={() => setFilter({ ...filter, keyword: '' })}
+                />
+              ) : null
+            }
             value={filter.keyword || ''}
             onChange={(value) => setFilter({ ...filter, keyword: value })}
           />
@@ -251,7 +259,17 @@ export function TrailList() {
         <Text type="secondary" style={{ display: 'block', marginBottom: 24 }}>
           点击行查看路线详情与海拔剖面图
           {showFavoritesOnly && !hasActiveFilter && `（当前仅显示 ${filteredTrails.length} 条收藏路线）`}
-          {!showFavoritesOnly && hasActiveFilter && `（当前筛选结果：${filteredTrails.length} 条路线）`}
+          {!showFavoritesOnly && hasActiveFilter && (
+            <>
+              （筛选条件：
+              {filter.keyword && `关键词="${filter.keyword}"`}
+              {filter.keyword && (filter.difficulty || filter.region) && '，'}
+              {filter.difficulty && `难度=${filter.difficulty}`}
+              {filter.difficulty && filter.region && '，'}
+              {filter.region && `区域=${filter.region}`}
+              {`，共 ${filteredTrails.length} 条路线）`}
+            </>
+          )}
           {showFavoritesOnly && hasActiveFilter && (
             <>
               （筛选条件：

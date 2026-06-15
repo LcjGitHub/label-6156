@@ -83,6 +83,7 @@ export interface TrailFilter {
  * @param filter 过滤条件
  */
 export function filterTrails(trails: Trail[], filter: TrailFilter): Trail[] {
+  const trimmedKeyword = filter.keyword?.trim();
   return trails.filter((trail) => {
     if (filter.difficulty && trail.difficulty !== filter.difficulty) {
       return false;
@@ -90,7 +91,7 @@ export function filterTrails(trails: Trail[], filter: TrailFilter): Trail[] {
     if (filter.region && trail.region !== filter.region) {
       return false;
     }
-    if (filter.keyword && !fuzzyMatchKeyword(trail, filter.keyword)) {
+    if (trimmedKeyword && !fuzzyMatchKeyword(trail, trimmedKeyword)) {
       return false;
     }
     return true;
@@ -104,7 +105,10 @@ export function filterTrails(trails: Trail[], filter: TrailFilter): Trail[] {
  * @returns 是否匹配
  */
 export function fuzzyMatchKeyword(trail: Trail, keyword: string): boolean {
-  const lowerKeyword = keyword.toLowerCase();
+  const lowerKeyword = keyword.trim().toLowerCase();
+  if (!lowerKeyword) {
+    return true;
+  }
   return (
     trail.name.toLowerCase().includes(lowerKeyword) ||
     trail.region.toLowerCase().includes(lowerKeyword)
