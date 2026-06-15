@@ -39,6 +39,10 @@ export function clearHistory(): void {
   writeHistory([]);
 }
 
+/**
+ * 从浏览历史中移除指定路线标识的记录
+ * @param id 路线唯一标识
+ */
 export function removeHistory(id: string): void {
   const history = readHistory();
   const filtered = history.filter((item) => item.id !== id);

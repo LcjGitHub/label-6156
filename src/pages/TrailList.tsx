@@ -312,18 +312,35 @@ export function TrailList() {
                     onClick={() => navigate(`/trail/${item.id}`)}
                   >
                     <span>{item.name}</span>
-                    <IconClose
-                      style={{
-                        color: 'rgba(24, 144, 255, 0.6)',
-                        fontSize: 12,
-                        cursor: 'pointer',
-                        padding: 2,
-                      }}
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`从最近浏览中移除「${item.name}」`}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleRemoveHistory(item.id);
                       }}
-                    />
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleRemoveHistory(item.id);
+                        }
+                      }}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 22,
+                        height: 22,
+                        borderRadius: '50%',
+                        cursor: 'pointer',
+                        color: 'rgba(24, 144, 255, 0.6)',
+                        outline: 'none',
+                      }}
+                    >
+                      <IconClose style={{ fontSize: 12 }} />
+                    </span>
                   </span>
                 ))}
               </Space>
