@@ -1,6 +1,6 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { Table, Typography, Card, Switch, Space, Empty, Select, Button, Tag, Toast, Input } from '@douyinfe/semi-ui';
+import { Table, Typography, Card, Switch, Space, Empty, Select, Button, Toast, Input } from '@douyinfe/semi-ui';
 import { IconStar, IconStarStroked, IconRefresh, IconHistory, IconLayers, IconSearch, IconClose } from '@douyinfe/semi-icons';
 import type { Trail } from '../types/trail';
 import {
@@ -14,7 +14,7 @@ import {
   type SortDirection,
 } from '../utils/trails';
 import { getFavoriteIds } from '../utils/favorites';
-import { getHistory, type HistoryItem } from '../utils/history';
+import { getHistory, removeHistory, type HistoryItem } from '../utils/history';
 
 const { Title, Text } = Typography;
 
@@ -52,6 +52,11 @@ export function TrailList() {
   const refreshHistory = useCallback(() => {
     setHistory(getHistory());
   }, []);
+
+  const handleRemoveHistory = useCallback((id: string) => {
+    removeHistory(id);
+    refreshHistory();
+  }, [refreshHistory]);
 
   const handleResetFilter = useCallback(() => {
     setFilter({});
@@ -293,22 +298,32 @@ export function TrailList() {
                     key={item.id}
                     className="history-tag"
                     style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      padding: '4px 6px 4px 14px',
+                      fontSize: 14,
+                      borderRadius: 16,
+                      backgroundColor: 'rgba(24, 144, 255, 0.08)',
+                      color: '#1890ff',
                       cursor: 'pointer',
-                      display: 'inline-block',
+                      border: '1px solid rgba(24, 144, 255, 0.2)',
                     }}
                     onClick={() => navigate(`/trail/${item.id}`)}
                   >
-                    <Tag
-                      color="blue"
-                      size="large"
+                    <span>{item.name}</span>
+                    <IconClose
                       style={{
-                        padding: '4px 14px',
-                        fontSize: 14,
-                        borderRadius: 16,
+                        color: 'rgba(24, 144, 255, 0.6)',
+                        fontSize: 12,
+                        cursor: 'pointer',
+                        padding: 2,
                       }}
-                    >
-                      {item.name}
-                    </Tag>
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveHistory(item.id);
+                      }}
+                    />
                   </span>
                 ))}
               </Space>

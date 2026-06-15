@@ -38,3 +38,9 @@ export function addHistory(id: string, name: string): void {
 export function clearHistory(): void {
   writeHistory([]);
 }
+
+export function removeHistory(id: string): void {
+  const history = readHistory();
+  const filtered = history.filter((item) => item.id !== id);
+  writeHistory(filtered);
+}
