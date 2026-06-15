@@ -299,6 +299,61 @@ export function recommendTrails(
     .sort((a, b) => a.elevationGain - b.elevationGain);
 }
 
+export interface ClimbSegment {
+  segmentIndex: number;
+  startDistance: number;
+  endDistance: number;
+  elevationGain: number;
+}
+
+export function extractClimbSegments(
+  profile: ElevationPoint[],
+  minGain: number = 10
+): ClimbSegment[] {
+  if (profile.length < 2) {
+    return [];
+  }
+
+  const segments: ClimbSegment[] = [];
+  let segStart = 0;
+  let ascending = false;
+
+  for (let i = 1; i < profile.length; i++) {
+    const rising = profile[i].elevation > profile[i - 1].elevation;
+
+    if (rising && !ascending) {
+      segStart = i - 1;
+      ascending = true;
+    } else if (!rising && ascending) {
+      const gain = profile[i - 1].elevation - profile[segStart].elevation;
+      if (gain >= minGain) {
+        segments.push({
+          segmentIndex: 0,
+          startDistance: profile[segStart].distance,
+          endDistance: profile[i - 1].distance,
+          elevationGain: gain,
+        });
+      }
+      ascending = false;
+    }
+  }
+
+  if (ascending) {
+    const last = profile.length - 1;
+    const gain = profile[last].elevation - profile[segStart].elevation;
+    if (gain >= minGain) {
+      segments.push({
+        segmentIndex: 0,
+        startDistance: profile[segStart].distance,
+        endDistance: profile[last].distance,
+        elevationGain: gain,
+      });
+    }
+  }
+
+  return segments.map((seg, idx) => ({ ...seg, segmentIndex: idx + 1 }));
+}
+
 export function toggleSortState(
   currentField: string | null,
   currentDirection: SortDirection,

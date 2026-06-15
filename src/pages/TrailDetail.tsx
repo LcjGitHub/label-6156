@@ -1,9 +1,9 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
-import { Button, Card, Descriptions, Typography, Empty, Toast, TextArea } from '@douyinfe/semi-ui';
+import { Button, Card, Descriptions, Typography, Empty, Toast, TextArea, Table } from '@douyinfe/semi-ui';
 import { IconArrowLeft, IconStar, IconStarStroked, IconEditStroked, IconShareStroked } from '@douyinfe/semi-icons';
 import { ElevationChart, type ChartMarkerPoint } from '../components/ElevationChart';
-import { getTrailById, findMaxElevationIndex, calculateElevationStats } from '../utils/trails';
+import { getTrailById, findMaxElevationIndex, calculateElevationStats, extractClimbSegments, type ClimbSegment } from '../utils/trails';
 import { isFavorite, toggleFavorite } from '../utils/favorites';
 import { addHistory } from '../utils/history';
 import { getNote, setNote } from '../utils/notes';
@@ -108,6 +108,7 @@ export function TrailDetail() {
 
   const profile = trail.elevationProfile;
   const maxIndex = findMaxElevationIndex(profile);
+  const climbSegments = extractClimbSegments(profile);
 
   const chartMarkers: ChartMarkerPoint[] = [];
 
@@ -196,6 +197,25 @@ export function TrailDetail() {
           row
           style={{ marginTop: 24 }}
         />
+        <div style={{ marginTop: 24 }}>
+          <Text strong style={{ display: 'block', marginBottom: 12 }}>爬坡分段摘要</Text>
+          {climbSegments.length > 0 ? (
+            <Table<ClimbSegment>
+              dataSource={climbSegments}
+              rowKey="segmentIndex"
+              pagination={false}
+              size="small"
+              columns={[
+                { title: '分段序号', dataIndex: 'segmentIndex', width: 100, align: 'center' as const },
+                { title: '起始里程 (km)', dataIndex: 'startDistance', width: 140, align: 'center' as const, render: (v: number) => v.toFixed(1) },
+                { title: '结束里程 (km)', dataIndex: 'endDistance', width: 140, align: 'center' as const, render: (v: number) => v.toFixed(1) },
+                { title: '爬升 (m)', dataIndex: 'elevationGain', width: 120, align: 'center' as const, render: (v: number) => v.toFixed(0) },
+              ]}
+            />
+          ) : (
+            <Text type="tertiary">暂无分段</Text>
+          )}
+        </div>
       </Card>
 
       <Card>
