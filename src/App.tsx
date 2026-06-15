@@ -3,6 +3,7 @@ import { Layout, Typography } from '@douyinfe/semi-ui';
 import { TrailList } from './pages/TrailList';
 import { TrailDetail } from './pages/TrailDetail';
 import { TrailCompare } from './pages/TrailCompare';
+import { TrailStats } from './pages/TrailStats';
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
@@ -24,6 +25,7 @@ function App() {
             <Route path="/" element={<TrailList />} />
             <Route path="/trail/:id" element={<TrailDetail />} />
             <Route path="/compare" element={<TrailCompare />} />
+            <Route path="/stats" element={<TrailStats />} />
           </Routes>
         </Content>
       </Layout>

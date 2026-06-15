@@ -250,9 +250,18 @@ export function TrailList() {
     <div className="page-container">
       <Card>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <Title heading={3} style={{ margin: 0 }}>
-            徒步路线列表
-          </Title>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Title heading={3} style={{ margin: 0 }}>
+              徒步路线列表
+            </Title>
+            <Text
+              link
+              style={{ fontSize: 14, whiteSpace: 'nowrap' }}
+              onClick={() => navigate('/stats')}
+            >
+              数据统计
+            </Text>
+          </div>
           <Space>
             {showFavoritesOnly ? (
               <IconStar style={{ color: '#FFC107' }} />
