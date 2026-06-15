@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Button, Card, Descriptions, Typography, Empty, Toast } from '@douyinfe/semi-ui';
 import { IconArrowLeft, IconStar, IconStarStroked } from '@douyinfe/semi-icons';
 import { ElevationChart, type ChartMarkerPoint } from '../components/ElevationChart';
-import { getTrailById, findMaxElevationIndex } from '../utils/trails';
+import { getTrailById, findMaxElevationIndex, calculateElevationStats } from '../utils/trails';
 import { isFavorite, toggleFavorite } from '../utils/favorites';
 import { addHistory } from '../utils/history';
 
@@ -54,6 +54,8 @@ export function TrailDetail() {
     );
   }
 
+  const elevationStats = calculateElevationStats(trail.elevationProfile);
+
   const descriptionData = [
     { key: '名称', value: trail.name },
     { key: '区域', value: trail.region },
@@ -62,6 +64,9 @@ export function TrailDetail() {
     { key: '预计耗时', value: trail.duration },
     { key: '难度', value: trail.difficulty },
     { key: '采样点数', value: `${trail.elevationProfile.length} 个` },
+    { key: '最高海拔', value: `${elevationStats.maxElevation} m` },
+    { key: '最低海拔', value: `${elevationStats.minElevation} m` },
+    { key: '海拔落差', value: `${elevationStats.elevationDrop} m` },
   ];
 
   const profile = trail.elevationProfile;

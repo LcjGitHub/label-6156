@@ -149,6 +149,64 @@ export function findMaxElevationIndex(profile: ElevationPoint[]): number {
 }
 
 /**
+ * 海拔统计结果接口
+ */
+export interface ElevationStats {
+  /** 最高海拔（米） */
+  maxElevation: number;
+  /** 最低海拔（米） */
+  minElevation: number;
+  /** 海拔落差（米） */
+  elevationDrop: number;
+}
+
+/**
+ * 根据海拔剖面数组计算海拔统计数据
+ *
+ * @param profile 海拔剖面采样点数组
+ * @returns 海拔统计结果对象。若数组为空则所有值为 0。
+ *
+ * @example
+ * ```ts
+ * const profile = [
+ *   { distance: 0, elevation: 100 },
+ *   { distance: 1, elevation: 300 },
+ *   { distance: 2, elevation: 200 },
+ * ];
+ * const stats = calculateElevationStats(profile);
+ * // => { maxElevation: 300, minElevation: 100, elevationDrop: 200 }
+ * ```
+ */
+export function calculateElevationStats(profile: ElevationPoint[]): ElevationStats {
+  if (profile.length === 0) {
+    return {
+      maxElevation: 0,
+      minElevation: 0,
+      elevationDrop: 0,
+    };
+  }
+
+  let maxElevation = profile[0].elevation;
+  let minElevation = profile[0].elevation;
+
+  for (let i = 1; i < profile.length; i++) {
+    const elevation = profile[i].elevation;
+    if (elevation > maxElevation) {
+      maxElevation = elevation;
+    }
+    if (elevation < minElevation) {
+      minElevation = elevation;
+    }
+  }
+
+  return {
+    maxElevation,
+    minElevation,
+    elevationDrop: maxElevation - minElevation,
+  };
+}
+
+/**
  * 排序方向
  */
 export type SortDirection = 'asc' | 'desc' | null;
