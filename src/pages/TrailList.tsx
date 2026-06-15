@@ -83,11 +83,19 @@ export function TrailList() {
   const rowSelection = {
     selectedRowKeys,
     onChange: (keys: (string | number)[] | undefined) => {
-      setSelectedRowKeys(keys ? keys.map(String) : []);
+      const newKeys = keys ? keys.map(String) : [];
+      if (newKeys.length > 2) {
+        Toast.warning('最多只能选择两条路线进行对比');
+        return;
+      }
+      setSelectedRowKeys(newKeys);
     },
-    getCheckboxProps: () => ({
-      'aria-label': '选择路线',
+    getCheckboxProps: (record: Trail) => ({
+      'aria-label': `选择 ${record.name}`,
+      disabled: selectedRowKeys.length >= 2 && !selectedRowKeys.includes(record.id),
     }),
+    selectAllText: '全选',
+    hideSelectAll: filteredTrails.length > 2,
   };
 
   const columns = [
@@ -106,8 +114,9 @@ export function TrailList() {
     {
       title: '路线名称',
       dataIndex: 'name',
+      minWidth: 180,
       render: (name: string, record: Trail & { _favorited: boolean }) => (
-        <Text strong>
+        <Text strong style={{ whiteSpace: 'nowrap' }}>
           {name}
           {record._favorited && (
             <Text type="tertiary" style={{ marginLeft: 8, fontSize: 12 }}>
@@ -136,6 +145,7 @@ export function TrailList() {
     {
       title: '区域',
       dataIndex: 'region',
+      minWidth: 180,
     },
   ];
 
@@ -271,8 +281,13 @@ export function TrailList() {
               rowKey="id"
               pagination={false}
               rowSelection={rowSelection}
+              style={{ paddingBottom: selectedRowKeys.length > 0 ? 80 : 0 }}
               onRow={(record) => ({
-                onClick: () => {
+                onClick: (e: React.MouseEvent) => {
+                  const target = e.target as HTMLElement;
+                  if (target.closest('input[type="checkbox"]') || target.closest('.semi-table-row-select')) {
+                    return;
+                  }
                   if (record) {
                     navigate(`/trail/${record.id}`);
                   }
