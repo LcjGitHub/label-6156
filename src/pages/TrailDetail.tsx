@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Button, Card, Descriptions, Typography, Empty, Toast } from '@douyinfe/semi-ui';
 import { IconArrowLeft, IconStar, IconStarStroked } from '@douyinfe/semi-icons';
-import { ElevationChart } from '../components/ElevationChart';
+import { ElevationChart, type ChartMarkerPoint } from '../components/ElevationChart';
 import { getTrailById } from '../utils/trails';
 import { isFavorite, toggleFavorite } from '../utils/favorites';
 
@@ -60,6 +60,34 @@ export function TrailDetail() {
     { key: '采样点数', value: `${trail.elevationProfile.length} 个` },
   ];
 
+  const profile = trail.elevationProfile;
+  let maxIndex = 0;
+  let maxElevation = profile[0].elevation;
+  for (let i = 1; i < profile.length; i++) {
+    if (profile[i].elevation > maxElevation) {
+      maxElevation = profile[i].elevation;
+      maxIndex = i;
+    }
+  }
+
+  const chartMarkers: ChartMarkerPoint[] = [
+    {
+      index: 0,
+      label: '起点',
+      color: '#52c41a',
+    },
+    {
+      index: maxIndex,
+      label: '最高点',
+      color: '#f5222d',
+    },
+    {
+      index: profile.length - 1,
+      label: '终点',
+      color: '#1890ff',
+    },
+  ];
+
   return (
     <div className="page-container">
       <Button
@@ -93,7 +121,7 @@ export function TrailDetail() {
       </Card>
 
       <Card>
-        <ElevationChart data={trail.elevationProfile} />
+        <ElevationChart data={trail.elevationProfile} markers={chartMarkers} />
       </Card>
     </div>
   );
