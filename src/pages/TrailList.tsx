@@ -36,6 +36,15 @@ export function TrailList() {
 
   const hasActiveFilter = !!(filter.difficulty || filter.region || filter.keyword);
 
+  const sortFieldLabelMap: Record<string, string> = {
+    distance: '里程',
+    elevationGain: '累计爬升',
+  };
+
+  const sortDescription = sortField && sortDirection
+    ? `，按${sortFieldLabelMap[sortField] || sortField}${sortDirection === 'asc' ? '升序' : '降序'}排列`
+    : '';
+
   const refreshFavorites = useCallback(() => {
     setRefreshTick((t) => t + 1);
   }, []);
@@ -117,6 +126,7 @@ export function TrailList() {
 
   const renderSortIcon = (field: string) => {
     const isActive = sortField === field;
+    if (!isActive) return null;
     return (
       <span
         style={{
@@ -130,7 +140,7 @@ export function TrailList() {
       >
         <span
           style={{
-            color: isActive && sortDirection === 'asc' ? '#1890ff' : 'rgba(0,0,0,0.25)',
+            color: sortDirection === 'asc' ? '#1890ff' : 'rgba(0,0,0,0.25)',
             marginBottom: -2,
           }}
         >
@@ -138,7 +148,7 @@ export function TrailList() {
         </span>
         <span
           style={{
-            color: isActive && sortDirection === 'desc' ? '#1890ff' : 'rgba(0,0,0,0.25)',
+            color: sortDirection === 'desc' ? '#1890ff' : 'rgba(0,0,0,0.25)',
             marginTop: -2,
           }}
         >
@@ -146,6 +156,19 @@ export function TrailList() {
         </span>
       </span>
     );
+  };
+
+  const getSortAriaLabel = (field: string, label: string) => {
+    if (sortField !== field) {
+      return `${label}，未排序，点击按${label}升序排列`;
+    }
+    if (sortDirection === 'asc') {
+      return `${label}，升序排列，点击按${label}降序排列`;
+    }
+    if (sortDirection === 'desc') {
+      return `${label}，降序排列，点击取消排序`;
+    }
+    return `${label}，未排序，点击按${label}升序排列`;
   };
 
   const columns = [
@@ -179,8 +202,12 @@ export function TrailList() {
     {
       title: (
         <span
+          role="button"
+          tabIndex={0}
+          aria-label={getSortAriaLabel('distance', '里程')}
           style={{ cursor: 'pointer', userSelect: 'none', display: 'inline-flex', alignItems: 'center' }}
           onClick={() => handleSort('distance')}
+          onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSort('distance'); } }}
         >
           里程 (km)
           {renderSortIcon('distance')}
@@ -193,8 +220,12 @@ export function TrailList() {
     {
       title: (
         <span
+          role="button"
+          tabIndex={0}
+          aria-label={getSortAriaLabel('elevationGain', '累计爬升')}
           style={{ cursor: 'pointer', userSelect: 'none', display: 'inline-flex', alignItems: 'center' }}
           onClick={() => handleSort('elevationGain')}
+          onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSort('elevationGain'); } }}
         >
           累计爬升 (m)
           {renderSortIcon('elevationGain')}
@@ -324,7 +355,7 @@ export function TrailList() {
         </div>
         <Text type="secondary" style={{ display: 'block', marginBottom: 24 }}>
           点击行查看路线详情与海拔剖面图
-          {showFavoritesOnly && !hasActiveFilter && `（当前仅显示 ${filteredTrails.length} 条收藏路线）`}
+          {showFavoritesOnly && !hasActiveFilter && `（当前仅显示 ${filteredTrails.length} 条收藏路线${sortDescription}）`}
           {!showFavoritesOnly && hasActiveFilter && (
             <>
               （筛选条件：
@@ -333,7 +364,7 @@ export function TrailList() {
               {filter.difficulty && `难度=${filter.difficulty}`}
               {filter.difficulty && filter.region && '，'}
               {filter.region && `区域=${filter.region}`}
-              {`，共 ${filteredTrails.length} 条路线）`}
+              {`，共 ${filteredTrails.length} 条路线${sortDescription}）`}
             </>
           )}
           {showFavoritesOnly && hasActiveFilter && (
@@ -344,7 +375,7 @@ export function TrailList() {
               {filter.difficulty && `难度=${filter.difficulty}`}
               {filter.difficulty && filter.region && '，'}
               {filter.region && `区域=${filter.region}`}
-              {`，共 ${filteredTrails.length} 条收藏路线）`}
+              {`，共 ${filteredTrails.length} 条收藏路线${sortDescription}）`}
             </>
           )}
         </Text>
