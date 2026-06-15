@@ -3,7 +3,16 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Table, Typography, Card, Switch, Space, Empty, Select, Button, Tag, Toast, Input } from '@douyinfe/semi-ui';
 import { IconStar, IconStarStroked, IconRefresh, IconHistory, IconLayers, IconSearch, IconClose } from '@douyinfe/semi-icons';
 import type { Trail } from '../types/trail';
-import { getAllTrails, getAllDifficulties, getGroupedRegions, filterTrails, type TrailFilter } from '../utils/trails';
+import {
+  getAllTrails,
+  getAllDifficulties,
+  getGroupedRegions,
+  filterTrails,
+  sortByField,
+  toggleSortState,
+  type TrailFilter,
+  type SortDirection,
+} from '../utils/trails';
 import { getFavoriteIds } from '../utils/favorites';
 import { getHistory, type HistoryItem } from '../utils/history';
 
@@ -22,6 +31,8 @@ export function TrailList() {
   const [refreshTick, setRefreshTick] = useState(0);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
+  const [sortField, setSortField] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>(null);
 
   const hasActiveFilter = !!(filter.difficulty || filter.region || filter.keyword);
 
@@ -44,6 +55,12 @@ export function TrailList() {
     }
     navigate(`/compare?ids=${selectedRowKeys.join(',')}`);
   }, [selectedRowKeys, navigate]);
+
+  const handleSort = useCallback((field: string) => {
+    const result = toggleSortState(sortField, sortDirection, field);
+    setSortField(result.field);
+    setSortDirection(result.direction);
+  }, [sortField, sortDirection]);
 
   useEffect(() => {
     refreshHistory();
@@ -74,11 +91,11 @@ export function TrailList() {
       ...trail,
       _favorited: favoriteIds.includes(trail.id),
     }));
-    if (!showFavoritesOnly) {
-      return trailsWithFavorite;
-    }
-    return trailsWithFavorite.filter((trail) => trail._favorited);
-  }, [trails, filter, showFavoritesOnly, refreshTick]);
+    const filteredResult = showFavoritesOnly
+      ? trailsWithFavorite.filter((trail) => trail._favorited)
+      : trailsWithFavorite;
+    return sortByField(filteredResult, sortField as keyof typeof filteredResult[0] | null, sortDirection);
+  }, [trails, filter, showFavoritesOnly, refreshTick, sortField, sortDirection]);
 
   const rowSelection = {
     selectedRowKeys,
@@ -96,6 +113,39 @@ export function TrailList() {
     }),
     selectAllText: '全选',
     hideSelectAll: filteredTrails.length > 2,
+  };
+
+  const renderSortIcon = (field: string) => {
+    const isActive = sortField === field;
+    return (
+      <span
+        style={{
+          display: 'inline-flex',
+          flexDirection: 'column',
+          marginLeft: 6,
+          fontSize: 10,
+          lineHeight: 1,
+          verticalAlign: 'middle',
+        }}
+      >
+        <span
+          style={{
+            color: isActive && sortDirection === 'asc' ? '#1890ff' : 'rgba(0,0,0,0.25)',
+            marginBottom: -2,
+          }}
+        >
+          ▲
+        </span>
+        <span
+          style={{
+            color: isActive && sortDirection === 'desc' ? '#1890ff' : 'rgba(0,0,0,0.25)',
+            marginTop: -2,
+          }}
+        >
+          ▼
+        </span>
+      </span>
+    );
   };
 
   const columns = [
@@ -127,13 +177,29 @@ export function TrailList() {
       ),
     },
     {
-      title: '里程 (km)',
+      title: (
+        <span
+          style={{ cursor: 'pointer', userSelect: 'none', display: 'inline-flex', alignItems: 'center' }}
+          onClick={() => handleSort('distance')}
+        >
+          里程 (km)
+          {renderSortIcon('distance')}
+        </span>
+      ),
       dataIndex: 'distance',
       width: 120,
       render: (distance: number) => distance.toFixed(1),
     },
     {
-      title: '累计爬升 (m)',
+      title: (
+        <span
+          style={{ cursor: 'pointer', userSelect: 'none', display: 'inline-flex', alignItems: 'center' }}
+          onClick={() => handleSort('elevationGain')}
+        >
+          累计爬升 (m)
+          {renderSortIcon('elevationGain')}
+        </span>
+      ),
       dataIndex: 'elevationGain',
       width: 140,
     },

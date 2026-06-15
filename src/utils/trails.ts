@@ -147,3 +147,63 @@ export function findMaxElevationIndex(profile: ElevationPoint[]): number {
   }
   return maxIndex;
 }
+
+/**
+ * 排序方向
+ */
+export type SortDirection = 'asc' | 'desc' | null;
+
+/**
+ * 按字段对数组进行排序（通用函数）
+ * @param list 待排序数组
+ * @param field 排序字段名
+ * @param direction 排序方向：'asc' 升序，'desc' 降序，null 不排序
+ * @returns 排序后的新数组（不修改原数组）
+ */
+export function sortByField<T extends Record<string, any>>(
+  list: T[],
+  field: keyof T | null,
+  direction: SortDirection
+): T[] {
+  if (!field || !direction) {
+    return [...list];
+  }
+  const sortedList = [...list].sort((a, b) => {
+    const valueA = a[field];
+    const valueB = b[field];
+    if (typeof valueA === 'number' && typeof valueB === 'number') {
+      return direction === 'asc' ? valueA - valueB : valueB - valueA;
+    }
+    if (typeof valueA === 'string' && typeof valueB === 'string') {
+      return direction === 'asc'
+        ? valueA.localeCompare(valueB)
+        : valueB.localeCompare(valueA);
+    }
+    return 0;
+  });
+  return sortedList;
+}
+
+/**
+ * 循环切换排序状态：无排序 → 升序 → 降序 → 无排序
+ * @param currentField 当前排序字段
+ * @param currentDirection 当前排序方向
+ * @param targetField 目标排序字段
+ * @returns 新的排序字段和方向
+ */
+export function toggleSortState(
+  currentField: string | null,
+  currentDirection: SortDirection,
+  targetField: string
+): { field: string | null; direction: SortDirection } {
+  if (currentField !== targetField) {
+    return { field: targetField, direction: 'asc' };
+  }
+  if (currentDirection === 'asc') {
+    return { field: targetField, direction: 'desc' };
+  }
+  if (currentDirection === 'desc') {
+    return { field: null, direction: null };
+  }
+  return { field: targetField, direction: 'asc' };
+}
