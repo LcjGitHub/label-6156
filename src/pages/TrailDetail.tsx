@@ -1,8 +1,10 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button, Card, Descriptions, Typography, Empty } from '@douyinfe/semi-ui';
-import { IconArrowLeft } from '@douyinfe/semi-icons';
+import { useState, useEffect } from 'react';
+import { Button, Card, Descriptions, Typography, Empty, Toast } from '@douyinfe/semi-ui';
+import { IconArrowLeft, IconStar, IconStarFill } from '@douyinfe/semi-icons';
 import { ElevationChart } from '../components/ElevationChart';
 import { getTrailById } from '../utils/trails';
+import { isFavorite, toggleFavorite } from '../utils/favorites';
 
 const { Title, Paragraph } = Typography;
 
@@ -13,6 +15,20 @@ export function TrailDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const trail = id ? getTrailById(id) : undefined;
+  const [favorited, setFavorited] = useState(false);
+
+  useEffect(() => {
+    if (id) {
+      setFavorited(isFavorite(id));
+    }
+  }, [id]);
+
+  const handleToggleFavorite = () => {
+    if (!id) return;
+    const newStatus = toggleFavorite(id);
+    setFavorited(newStatus);
+    Toast.success(newStatus ? '已添加到收藏' : '已取消收藏');
+  };
 
   if (!trail) {
     return (
@@ -56,7 +72,16 @@ export function TrailDetail() {
       </Button>
 
       <Card style={{ marginBottom: 16 }}>
-        <Title heading={3}>{trail.name}</Title>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Title heading={3} style={{ margin: 0 }}>{trail.name}</Title>
+          <Button
+            icon={favorited ? <IconStarFill style={{ color: '#FFC107' }} /> : <IconStar />}
+            theme={favorited ? 'solid' : 'borderless'}
+            onClick={handleToggleFavorite}
+          >
+            {favorited ? '已收藏' : '收藏'}
+          </Button>
+        </div>
         <Paragraph type="secondary" style={{ marginTop: 8 }}>
           {trail.description}
         </Paragraph>
