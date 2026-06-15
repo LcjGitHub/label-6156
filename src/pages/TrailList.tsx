@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { Table, Typography, Card, Switch, Space, Empty } from '@douyinfe/semi-ui';
-import { IconStar, IconStarStroked } from '@douyinfe/semi-icons';
+import { Table, Typography, Card, Switch, Space, Empty, Select, Button } from '@douyinfe/semi-ui';
+import { IconStar, IconStarStroked, IconRefresh } from '@douyinfe/semi-icons';
 import type { Trail } from '../types/trail';
-import { getAllTrails } from '../utils/trails';
+import { getAllTrails, getAllDifficulties, getAllRegions, filterTrails, type TrailFilter } from '../utils/trails';
 import { getFavoriteIds } from '../utils/favorites';
 
 const { Title, Text } = Typography;
@@ -14,11 +14,18 @@ const { Title, Text } = Typography;
 export function TrailList() {
   const navigate = useNavigate();
   const trails = getAllTrails();
+  const difficulties = getAllDifficulties();
+  const regions = getAllRegions();
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [filter, setFilter] = useState<TrailFilter>({});
   const [refreshTick, setRefreshTick] = useState(0);
 
   const refreshFavorites = useCallback(() => {
     setRefreshTick((t) => t + 1);
+  }, []);
+
+  const handleResetFilter = useCallback(() => {
+    setFilter({});
   }, []);
 
   useEffect(() => {
@@ -37,7 +44,8 @@ export function TrailList() {
 
   const filteredTrails = useMemo(() => {
     const favoriteIds = getFavoriteIds();
-    const trailsWithFavorite = trails.map((trail) => ({
+    const filteredByConditions = filterTrails(trails, filter);
+    const trailsWithFavorite = filteredByConditions.map((trail) => ({
       ...trail,
       _favorited: favoriteIds.includes(trail.id),
     }));
@@ -45,7 +53,7 @@ export function TrailList() {
       return trailsWithFavorite;
     }
     return trailsWithFavorite.filter((trail) => trail._favorited);
-  }, [trails, showFavoritesOnly, refreshTick]);
+  }, [trails, filter, showFavoritesOnly, refreshTick]);
 
   const columns = [
     {
@@ -116,9 +124,40 @@ export function TrailList() {
             />
           </Space>
         </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, padding: 16, backgroundColor: 'rgba(0,0,0,0.02)', borderRadius: 6 }}>
+          <Text strong style={{ whiteSpace: 'nowrap' }}>筛选条件：</Text>
+          <Select
+            placeholder="选择难度"
+            style={{ width: 180 }}
+            value={filter.difficulty}
+            onChange={(value) => setFilter({ ...filter, difficulty: value as string })}
+            optionList={[
+              { value: '', label: '全部难度' },
+              ...difficulties.map((d) => ({ value: d, label: d })),
+            ]}
+          />
+          <Select
+            placeholder="选择区域"
+            style={{ width: 220 }}
+            value={filter.region}
+            onChange={(value) => setFilter({ ...filter, region: value as string })}
+            optionList={[
+              { value: '', label: '全部区域' },
+              ...regions.map((r) => ({ value: r, label: r })),
+            ]}
+          />
+          <Button
+            icon={<IconRefresh />}
+            onClick={handleResetFilter}
+            disabled={!filter.difficulty && !filter.region}
+          >
+            重置
+          </Button>
+        </div>
         <Text type="secondary" style={{ display: 'block', marginBottom: 24 }}>
           点击行查看路线详情与海拔剖面图
           {showFavoritesOnly && `（当前仅显示 ${filteredTrails.length} 条收藏路线）`}
+          {!showFavoritesOnly && (filter.difficulty || filter.region) && `（当前筛选结果：${filteredTrails.length} 条路线）`}
         </Text>
         {showFavoritesOnly && filteredTrails.length === 0 ? (
           <Empty

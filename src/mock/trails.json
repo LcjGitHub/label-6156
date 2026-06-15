@@ -137,5 +137,142 @@
       { "distance": 14.0, "elevation": 3280 },
       { "distance": 14.8, "elevation": 3160 }
     ]
+  },
+  {
+    "id": "trail-005",
+    "name": "西湖群山漫步",
+    "description": "环绕西湖的休闲徒步路线，可俯瞰西湖全景，沿途茶园飘香。",
+    "distance": 5.2,
+    "elevationGain": 180,
+    "duration": "2 小时",
+    "difficulty": "简单",
+    "region": "浙江省杭州市",
+    "elevationProfile": [
+      { "distance": 0, "elevation": 15 },
+      { "distance": 0.5, "elevation": 35 },
+      { "distance": 1.0, "elevation": 60 },
+      { "distance": 1.5, "elevation": 95 },
+      { "distance": 2.0, "elevation": 130 },
+      { "distance": 2.6, "elevation": 165 },
+      { "distance": 3.1, "elevation": 180 },
+      { "distance": 3.6, "elevation": 150 },
+      { "distance": 4.1, "elevation": 100 },
+      { "distance": 4.6, "elevation": 55 },
+      { "distance": 5.2, "elevation": 20 }
+    ]
+  },
+  {
+    "id": "trail-006",
+    "name": "稻城亚丁牛奶海环线",
+    "description": "探访人间最后的香格里拉，近距离欣赏雪山圣湖的壮美风光。",
+    "distance": 10.5,
+    "elevationGain": 1200,
+    "duration": "6-7 小时",
+    "difficulty": "极难",
+    "region": "四川省甘孜州",
+    "elevationProfile": [
+      { "distance": 0, "elevation": 3900 },
+      { "distance": 1.0, "elevation": 4050 },
+      { "distance": 2.0, "elevation": 4200 },
+      { "distance": 3.0, "elevation": 4350 },
+      { "distance": 4.0, "elevation": 4500 },
+      { "distance": 5.0, "elevation": 4600 },
+      { "distance": 5.5, "elevation": 4600 },
+      { "distance": 6.5, "elevation": 4700 },
+      { "distance": 7.5, "elevation": 4650 },
+      { "distance": 8.5, "elevation": 4400 },
+      { "distance": 9.5, "elevation": 4150 },
+      { "distance": 10.5, "elevation": 3900 }
+    ]
+  },
+  {
+    "id": "trail-007",
+    "name": "灵山古道穿越",
+    "description": "北京第一高峰徒步路线，沿途高山草甸风光无限。",
+    "distance": 12.8,
+    "elevationGain": 850,
+    "duration": "5-6 小时",
+    "difficulty": "中等偏难",
+    "region": "北京市门头沟区",
+    "elevationProfile": [
+      { "distance": 0, "elevation": 1400 },
+      { "distance": 1.0, "elevation": 1480 },
+      { "distance": 2.0, "elevation": 1580 },
+      { "distance": 3.0, "elevation": 1700 },
+      { "distance": 4.0, "elevation": 1850 },
+      { "distance": 5.0, "elevation": 2000 },
+      { "distance": 6.0, "elevation": 2150 },
+      { "distance": 6.4, "elevation": 2303 },
+      { "distance": 7.4, "elevation": 2150 },
+      { "distance": 8.4, "elevation": 1980 },
+      { "distance": 9.4, "elevation": 1800 },
+      { "distance": 10.4, "elevation": 1650 },
+      { "distance": 11.4, "elevation": 1520 },
+      { "distance": 12.8, "elevation": 1400 }
+    ]
+  },
+  {
+    "id": "trail-008",
+    "name": "西湖龙井茶园徒步",
+    "description": "穿越龙井茶园与十里琅珰，感受茶香与山景的完美结合。",
+    "distance": 7.5,
+    "elevationGain": 280,
+    "duration": "3 小时",
+    "difficulty": "简单",
+    "region": "浙江省杭州市",
+    "elevationProfile": [
+      { "distance": 0, "elevation": 30 },
+      { "distance": 1.0, "elevation": 80 },
+      { "distance": 2.0, "elevation": 130 },
+      { "distance": 3.0, "elevation": 180 },
+      { "distance": 3.8, "elevation": 210 },
+      { "distance": 4.5, "elevation": 280 },
+      { "distance": 5.5, "elevation": 230 },
+      { "distance": 6.5, "elevation": 150 },
+      { "distance": 7.5, "elevation": 40 }
+    ]
+  },
+  {
+    "id": "trail-009",
+    "name": "玉龙雪山大索道徒步",
+    "description": "从海拔4506米出发，挑战更高海拔，感受冰川奇观。",
+    "distance": 3.2,
+    "elevationGain": 614,
+    "duration": "3-4 小时",
+    "difficulty": "极难",
+    "region": "云南省丽江市",
+    "elevationProfile": [
+      { "distance": 0, "elevation": 4506 },
+      { "distance": 0.5, "elevation": 4600 },
+      { "distance": 1.0, "elevation": 4700 },
+      { "distance": 1.5, "elevation": 4800 },
+      { "distance": 2.0, "elevation": 4900 },
+      { "distance": 2.5, "elevation": 5000 },
+      { "distance": 3.0, "elevation": 5100 },
+      { "distance": 3.2, "elevation": 5120 }
+    ]
+  },
+  {
+    "id": "trail-010",
+    "name": "长城箭扣段徒步",
+    "description": "徒步万里长城最险峻的段落，感受历史的沧桑与壮美。",
+    "distance": 9.2,
+    "elevationGain": 620,
+    "duration": "5 小时",
+    "difficulty": "中等",
+    "region": "北京市怀柔区",
+    "elevationProfile": [
+      { "distance": 0, "elevation": 380 },
+      { "distance": 1.0, "elevation": 480 },
+      { "distance": 2.0, "elevation": 600 },
+      { "distance": 3.0, "elevation": 750 },
+      { "distance": 4.0, "elevation": 880 },
+      { "distance": 4.6, "elevation": 1000 },
+      { "distance": 5.6, "elevation": 920 },
+      { "distance": 6.6, "elevation": 800 },
+      { "distance": 7.6, "elevation": 650 },
+      { "distance": 8.6, "elevation": 500 },
+      { "distance": 9.2, "elevation": 400 }
+    ]
   }
 ]
