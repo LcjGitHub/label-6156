@@ -1,8 +1,10 @@
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Button, Card, Descriptions, Typography, Empty, Space, Tag } from '@douyinfe/semi-ui';
+import { Button, Card, Descriptions, Typography, Empty, Space, Tag, Divider } from '@douyinfe/semi-ui';
 import type { TagColor } from '@douyinfe/semi-ui/lib/es/tag/interface';
 import { IconArrowLeft } from '@douyinfe/semi-icons';
 import { MiniElevationChart } from '../components/MiniElevationChart';
+import { ElevationCompareChart } from '../components/ElevationCompareChart';
+import type { CompareTrailData } from '../components/ElevationCompareChart';
 import { getTrailById } from '../utils/trails';
 import type { Trail } from '../types/trail';
 
@@ -117,15 +119,33 @@ export function TrailCompare() {
             style={{ padding: '60px 0' }}
           />
         ) : (
-          <div style={{ display: 'flex', gap: 32 }}>
-            <TrailCard trail={trail1} color={COLORS.left} />
-            <div
-              style={{
-                width: 1,
-                backgroundColor: 'rgba(0,0,0,0.08)',
-              }}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            <div style={{ display: 'flex', gap: 32 }}>
+              <TrailCard trail={trail1} color={COLORS.left} />
+              <div
+                style={{
+                  width: 1,
+                  backgroundColor: 'rgba(0,0,0,0.08)',
+                }}
+              />
+              <TrailCard trail={trail2} color={COLORS.right} />
+            </div>
+            <Divider style={{ margin: '32px 0' }} />
+            <ElevationCompareChart
+              trails={[
+                {
+                  name: trail1.name,
+                  color: COLORS.left,
+                  data: trail1.elevationProfile,
+                } as CompareTrailData,
+                {
+                  name: trail2.name,
+                  color: COLORS.right,
+                  data: trail2.elevationProfile,
+                } as CompareTrailData,
+              ]}
+              height={380}
             />
-            <TrailCard trail={trail2} color={COLORS.right} />
           </div>
         )}
       </Card>
