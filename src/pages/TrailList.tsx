@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { Table, Typography, Card, Switch, Space, Empty, Select, Button, Tag } from '@douyinfe/semi-ui';
-import { IconStar, IconStarStroked, IconRefresh, IconHistory } from '@douyinfe/semi-icons';
+import { Table, Typography, Card, Switch, Space, Empty, Select, Button, Tag, Toast } from '@douyinfe/semi-ui';
+import { IconStar, IconStarStroked, IconRefresh, IconHistory, IconLayers } from '@douyinfe/semi-icons';
 import type { Trail } from '../types/trail';
 import { getAllTrails, getAllDifficulties, getGroupedRegions, filterTrails, type TrailFilter } from '../utils/trails';
 import { getFavoriteIds } from '../utils/favorites';
@@ -21,6 +21,7 @@ export function TrailList() {
   const [filter, setFilter] = useState<TrailFilter>({});
   const [refreshTick, setRefreshTick] = useState(0);
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
   const hasActiveFilter = !!(filter.difficulty || filter.region);
 
@@ -35,6 +36,14 @@ export function TrailList() {
   const handleResetFilter = useCallback(() => {
     setFilter({});
   }, []);
+
+  const handleCompare = useCallback(() => {
+    if (selectedRowKeys.length !== 2) {
+      Toast.warning('请恰好选择两条路线进行对比');
+      return;
+    }
+    navigate(`/compare?ids=${selectedRowKeys.join(',')}`);
+  }, [selectedRowKeys, navigate]);
 
   useEffect(() => {
     refreshHistory();
@@ -70,6 +79,16 @@ export function TrailList() {
     }
     return trailsWithFavorite.filter((trail) => trail._favorited);
   }, [trails, filter, showFavoritesOnly, refreshTick]);
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (keys: (string | number)[] | undefined) => {
+      setSelectedRowKeys(keys ? keys.map(String) : []);
+    },
+    getCheckboxProps: () => ({
+      'aria-label': '选择路线',
+    }),
+  };
 
   const columns = [
     {
@@ -245,20 +264,64 @@ export function TrailList() {
             style={{ padding: '40px 0' }}
           />
         ) : (
-          <Table<Trail & { _favorited: boolean }>
-            columns={columns}
-            dataSource={filteredTrails}
-            rowKey="id"
-            pagination={false}
-            onRow={(record) => ({
-              onClick: () => {
-                if (record) {
-                  navigate(`/trail/${record.id}`);
-                }
-              },
-              style: { cursor: 'pointer' },
-            })}
-          />
+          <>
+            <Table<Trail & { _favorited: boolean }>
+              columns={columns}
+              dataSource={filteredTrails}
+              rowKey="id"
+              pagination={false}
+              rowSelection={rowSelection}
+              onRow={(record) => ({
+                onClick: () => {
+                  if (record) {
+                    navigate(`/trail/${record.id}`);
+                  }
+                },
+                style: { cursor: 'pointer' },
+              })}
+            />
+            {selectedRowKeys.length > 0 && (
+              <div
+                style={{
+                  position: 'fixed',
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: '#fff',
+                  borderTop: '1px solid rgba(0,0,0,0.08)',
+                  padding: '12px 24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  boxShadow: '0 -2px 8px rgba(0,0,0,0.06)',
+                  zIndex: 1000,
+                }}
+              >
+                <Text type="secondary">
+                  已选择 <Text strong style={{ color: '#3370ff' }}>{selectedRowKeys.length}</Text> 条路线
+                  {selectedRowKeys.length !== 2 && (
+                    <Text type="tertiary" style={{ marginLeft: 8 }}>
+                      （请恰好选择 2 条进行对比）
+                    </Text>
+                  )}
+                </Text>
+                <Space>
+                  <Button onClick={() => setSelectedRowKeys([])}>
+                    取消选择
+                  </Button>
+                  <Button
+                    type="primary"
+                    theme="solid"
+                    icon={<IconLayers />}
+                    onClick={handleCompare}
+                    disabled={selectedRowKeys.length !== 2}
+                  >
+                    对比选中路线
+                  </Button>
+                </Space>
+              </div>
+            )}
+          </>
         )}
       </Card>
     </div>

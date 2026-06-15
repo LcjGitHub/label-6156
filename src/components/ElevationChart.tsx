@@ -1,5 +1,5 @@
 import ReactECharts from 'echarts-for-react';
-import type { EChartsOption, MarkPointComponentOption, TooltipComponentFormatterCallbackParams } from 'echarts';
+import type { EChartsOption, MarkPointComponentOption } from 'echarts';
 import type { ElevationPoint } from '../types/trail';
 
 export interface ChartMarkerPoint {
@@ -29,18 +29,16 @@ export function ElevationChart({ data, markers = [] }: ElevationChartProps) {
     (marker) => marker.index >= 0 && marker.index < data.length
   );
 
-  const markersByIndex = new Map<number, ChartMarkerPoint[]>();
+  const markerMap = new Map<string, ChartMarkerPoint>();
   validMarkers.forEach((marker) => {
-    const list = markersByIndex.get(marker.index) ?? [];
-    list.push(marker);
-    markersByIndex.set(marker.index, list);
+    markerMap.set(marker.label, marker);
   });
 
   const markPointData: MarkPointComponentOption['data'] = validMarkers.map((marker) => {
     const point = data[marker.index];
     return {
       name: marker.label,
-      coord: [marker.index, point.elevation],
+      coord: [marker.index, point.elevation] as [number, number],
       value: point.elevation,
       itemStyle: {
         color: marker.color,
@@ -50,7 +48,7 @@ export function ElevationChart({ data, markers = [] }: ElevationChartProps) {
         position: 'top',
         formatter: marker.label,
         color: marker.color,
-        fontWeight: 'bold',
+        fontWeight: 'bold' as const,
         fontSize: 12,
       },
     };
@@ -70,39 +68,41 @@ export function ElevationChart({ data, markers = [] }: ElevationChartProps) {
       axisPointer: {
         type: 'line',
       },
-      formatter: (params: TooltipComponentFormatterCallbackParams) => {
+      formatter: (params) => {
         const paramArray = Array.isArray(params) ? params : [params];
         if (paramArray.length === 0) {
           return '';
         }
 
-        let dataIndex: number | undefined;
-        for (const item of paramArray) {
-          if (item.componentType === 'series' && typeof item.dataIndex === 'number') {
-            dataIndex = item.dataIndex;
-            break;
+        const markPointItem = paramArray.find(
+          (item) => (item as { componentType: string }).componentType === 'markPoint'
+        );
+
+        if (markPointItem) {
+          const markerName = (markPointItem as { name?: string }).name;
+          if (markerName) {
+            const marker = markerMap.get(markerName);
+            if (marker) {
+              const point = data[marker.index];
+              return `<b style="color:${marker.color}">${marker.label}</b><br/>里程：${point.distance.toFixed(1)} km<br/>海拔：${point.elevation} m`;
+            }
           }
         }
 
-        if (dataIndex === undefined) {
-          return '';
+        const seriesItem = paramArray.find(
+          (item) => (item as { componentType: string }).componentType === 'series'
+        );
+        if (seriesItem) {
+          const dataIndex = (seriesItem as { dataIndex?: number }).dataIndex;
+          if (typeof dataIndex === 'number') {
+            const point = data[dataIndex];
+            if (point) {
+              return `里程：${point.distance.toFixed(1)} km<br/>海拔：${point.elevation} m`;
+            }
+          }
         }
 
-        const point = data[dataIndex];
-        if (!point) {
-          return '';
-        }
-
-        const markersAtPoint = markersByIndex.get(dataIndex) ?? [];
-
-        if (markersAtPoint.length > 0) {
-          const labelsHtml = markersAtPoint
-            .map((m) => `<b style="color:${m.color}">${m.label}</b>`)
-            .join(' / ');
-          return `${labelsHtml}<br/>里程：${point.distance.toFixed(1)} km<br/>海拔：${point.elevation} m`;
-        }
-
-        return `里程：${point.distance.toFixed(1)} km<br/>海拔：${point.elevation} m`;
+        return '';
       },
     },
     grid: {
