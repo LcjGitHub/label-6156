@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { Card, Typography, Button } from '@douyinfe/semi-ui';
 import { IconArrowLeft } from '@douyinfe/semi-icons';
-import { calculateTrailStats } from '../utils/statsCalc';
+import { calculateTrailStats, countTrailsByDifficulty } from '../utils/statsCalc';
+import { DifficultyBarChart } from '../components/DifficultyBarChart';
 
 const { Title, Text } = Typography;
 
@@ -41,6 +42,7 @@ interface StatCardConfig {
 export function TrailStats() {
   const navigate = useNavigate();
   const stats = calculateTrailStats();
+  const difficultyData = countTrailsByDifficulty();
 
   const statCards: StatCardConfig[] = [
     {
@@ -157,6 +159,13 @@ export function TrailStats() {
               </Card>
             </div>
           ))}
+        </div>
+
+        <Title heading={4} style={{ margin: 0, marginTop: 32, marginBottom: 16 }}>
+          难度分布
+        </Title>
+        <div role="region" aria-label="难度分布统计区域">
+          <DifficultyBarChart data={difficultyData} />
         </div>
       </Card>
     </div>

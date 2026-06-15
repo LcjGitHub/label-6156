@@ -1,6 +1,8 @@
 import type { Trail } from '../types/trail';
 import { getAllTrails, calculateElevationStats } from './trails';
 
+const DIFFICULTY_ORDER = ['简单', '中等', '中等偏难', '困难', '极难'] as const;
+
 /**
  * 路线统计汇总结果
  */
@@ -64,6 +66,30 @@ export function calculateTrailStats(trails?: Trail[]): TrailStatsSummary {
       value: maxTrail.elevationGain,
     },
   };
+}
+
+export interface DifficultyDistributionItem {
+  difficulty: string;
+  count: number;
+}
+
+export function countTrailsByDifficulty(trails?: Trail[]): DifficultyDistributionItem[] {
+  const data = trails ?? getAllTrails();
+
+  const countMap = new Map<string, number>();
+  for (const level of DIFFICULTY_ORDER) {
+    countMap.set(level, 0);
+  }
+
+  for (const trail of data) {
+    const current = countMap.get(trail.difficulty) ?? 0;
+    countMap.set(trail.difficulty, current + 1);
+  }
+
+  return DIFFICULTY_ORDER.map((level) => ({
+    difficulty: level,
+    count: countMap.get(level) ?? 0,
+  }));
 }
 
 /**
