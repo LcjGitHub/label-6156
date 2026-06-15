@@ -37,6 +37,38 @@ export function getAllRegions(): string[] {
 }
 
 /**
+ * 区域分组接口
+ */
+export interface RegionGroup {
+  province: string;
+  regions: string[];
+}
+
+/**
+ * 获取按省份分组的区域列表
+ */
+export function getGroupedRegions(): RegionGroup[] {
+  const regionSet = new Set(trails.map((trail) => trail.region));
+  const provinceMap = new Map<string, string[]>();
+
+  for (const region of regionSet) {
+    const match = region.match(/^(.+?[省市])/);
+    const province = match ? match[1] : region;
+    if (!provinceMap.has(province)) {
+      provinceMap.set(province, []);
+    }
+    provinceMap.get(province)!.push(region);
+  }
+
+  return Array.from(provinceMap.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([province, regions]) => ({
+      province,
+      regions: regions.sort(),
+    }));
+}
+
+/**
  * 过滤条件接口
  */
 export interface TrailFilter {

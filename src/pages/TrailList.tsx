@@ -3,7 +3,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Table, Typography, Card, Switch, Space, Empty, Select, Button } from '@douyinfe/semi-ui';
 import { IconStar, IconStarStroked, IconRefresh } from '@douyinfe/semi-icons';
 import type { Trail } from '../types/trail';
-import { getAllTrails, getAllDifficulties, getAllRegions, filterTrails, type TrailFilter } from '../utils/trails';
+import { getAllTrails, getAllDifficulties, getGroupedRegions, filterTrails, type TrailFilter } from '../utils/trails';
 import { getFavoriteIds } from '../utils/favorites';
 
 const { Title, Text } = Typography;
@@ -15,10 +15,12 @@ export function TrailList() {
   const navigate = useNavigate();
   const trails = getAllTrails();
   const difficulties = getAllDifficulties();
-  const regions = getAllRegions();
+  const groupedRegions = getGroupedRegions();
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [filter, setFilter] = useState<TrailFilter>({});
   const [refreshTick, setRefreshTick] = useState(0);
+
+  const hasActiveFilter = !!(filter.difficulty || filter.region);
 
   const refreshFavorites = useCallback(() => {
     setRefreshTick((t) => t + 1);
@@ -141,11 +143,18 @@ export function TrailList() {
             style={{ width: 220 }}
             value={filter.region}
             onChange={(value) => setFilter({ ...filter, region: value as string })}
-            optionList={[
-              { value: '', label: '全部区域' },
-              ...regions.map((r) => ({ value: r, label: r })),
-            ]}
-          />
+          >
+            <Select.Option value="">全部区域</Select.Option>
+            {groupedRegions.map((group) => (
+              <Select.OptGroup label={group.province} key={group.province}>
+                {group.regions.map((region) => (
+                  <Select.Option value={region} key={region}>
+                    {region.replace(group.province, '')}
+                  </Select.Option>
+                ))}
+              </Select.OptGroup>
+            ))}
+          </Select>
           <Button
             icon={<IconRefresh />}
             onClick={handleResetFilter}
@@ -156,13 +165,34 @@ export function TrailList() {
         </div>
         <Text type="secondary" style={{ display: 'block', marginBottom: 24 }}>
           点击行查看路线详情与海拔剖面图
-          {showFavoritesOnly && `（当前仅显示 ${filteredTrails.length} 条收藏路线）`}
-          {!showFavoritesOnly && (filter.difficulty || filter.region) && `（当前筛选结果：${filteredTrails.length} 条路线）`}
+          {showFavoritesOnly && !hasActiveFilter && `（当前仅显示 ${filteredTrails.length} 条收藏路线）`}
+          {!showFavoritesOnly && hasActiveFilter && `（当前筛选结果：${filteredTrails.length} 条路线）`}
+          {showFavoritesOnly && hasActiveFilter && (
+            <>
+              （筛选条件：
+              {filter.difficulty && `难度=${filter.difficulty}`}
+              {filter.difficulty && filter.region && '，'}
+              {filter.region && `区域=${filter.region}`}
+              {`，共 ${filteredTrails.length} 条收藏路线）`}
+            </>
+          )}
         </Text>
-        {showFavoritesOnly && filteredTrails.length === 0 ? (
+        {filteredTrails.length === 0 ? (
           <Empty
-            title="还没有收藏的路线"
-            description="前往路线详情页点击收藏按钮添加收藏"
+            title={
+              hasActiveFilter
+                ? showFavoritesOnly
+                  ? '没有符合条件的收藏路线'
+                  : '没有符合条件的路线'
+                : '还没有收藏的路线'
+            }
+            description={
+              hasActiveFilter
+                ? showFavoritesOnly
+                  ? '请调整筛选条件、点击重置按钮，或前往路线详情页添加收藏'
+                  : '请调整筛选条件或点击重置按钮恢复全部数据'
+                : '前往路线详情页点击收藏按钮添加收藏'
+            }
             style={{ padding: '40px 0' }}
           />
         ) : (
