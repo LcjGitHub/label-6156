@@ -1,13 +1,14 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { Button, Card, Descriptions, Typography, Empty, Toast } from '@douyinfe/semi-ui';
-import { IconArrowLeft, IconStar, IconStarStroked } from '@douyinfe/semi-icons';
+import { useState, useEffect, useRef } from 'react';
+import { Button, Card, Descriptions, Typography, Empty, Toast, TextArea } from '@douyinfe/semi-ui';
+import { IconArrowLeft, IconStar, IconStarStroked, IconEditStroked } from '@douyinfe/semi-icons';
 import { ElevationChart, type ChartMarkerPoint } from '../components/ElevationChart';
 import { getTrailById, findMaxElevationIndex, calculateElevationStats } from '../utils/trails';
 import { isFavorite, toggleFavorite } from '../utils/favorites';
 import { addHistory } from '../utils/history';
+import { getNote, setNote } from '../utils/notes';
 
-const { Title, Paragraph } = Typography;
+const { Title, Paragraph, Text } = Typography;
 
 /**
  * 路线详情页
@@ -17,15 +18,38 @@ export function TrailDetail() {
   const navigate = useNavigate();
   const trail = id ? getTrailById(id) : undefined;
   const [favorited, setFavorited] = useState(false);
+  const [note, setNoteState] = useState('');
+  const saveTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (id) {
       setFavorited(isFavorite(id));
+      setNoteState(getNote(id));
       if (trail) {
         addHistory(id, trail.name);
       }
     }
   }, [id, trail]);
+
+  const handleNoteChange = (value: string) => {
+    setNoteState(value);
+    if (saveTimerRef.current !== null) {
+      window.clearTimeout(saveTimerRef.current);
+    }
+    saveTimerRef.current = window.setTimeout(() => {
+      if (id) {
+        setNote(id, value);
+      }
+    }, 500);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current !== null) {
+        window.clearTimeout(saveTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleToggleFavorite = () => {
     if (!id) return;
@@ -128,6 +152,24 @@ export function TrailDetail() {
         <Paragraph type="secondary" style={{ marginTop: 8 }}>
           {trail.description}
         </Paragraph>
+        <div style={{ marginTop: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+            <IconEditStroked style={{ color: '#1890ff' }} />
+            <Text strong>个人备注</Text>
+            {note.trim().length > 0 && (
+              <Text type="tertiary" size="small">（已自动保存）</Text>
+            )}
+          </div>
+          <TextArea
+            placeholder="记录你对这条路线的想法、注意事项或个人经验..."
+            value={note}
+            onChange={handleNoteChange}
+            rows={4}
+            autosize={{ minRows: 4, maxRows: 10 }}
+            showClear
+            style={{ width: '100%' }}
+          />
+        </div>
         <Descriptions
           data={descriptionData}
           row

@@ -1,7 +1,7 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Table, Typography, Card, Switch, Space, Empty, Select, Button, Toast, Input } from '@douyinfe/semi-ui';
-import { IconStar, IconStarStroked, IconRefresh, IconHistory, IconLayers, IconSearch, IconClose } from '@douyinfe/semi-icons';
+import { IconStar, IconStarStroked, IconRefresh, IconHistory, IconLayers, IconSearch, IconClose, IconEditStroked } from '@douyinfe/semi-icons';
 import type { Trail } from '../types/trail';
 import {
   getAllTrails,
@@ -15,6 +15,7 @@ import {
 } from '../utils/trails';
 import { getFavoriteIds } from '../utils/favorites';
 import { getHistory, removeHistory, type HistoryItem } from '../utils/history';
+import { getAllNoteIds } from '../utils/notes';
 
 const { Title, Text } = Typography;
 
@@ -100,10 +101,12 @@ export function TrailList() {
 
   const filteredTrails = useMemo(() => {
     const favoriteIds = getFavoriteIds();
+    const noteIds = getAllNoteIds();
     const filteredByConditions = filterTrails(trails, filter);
     const trailsWithFavorite = filteredByConditions.map((trail) => ({
       ...trail,
       _favorited: favoriteIds.includes(trail.id),
+      _hasNote: noteIds.includes(trail.id),
     }));
     const filteredResult = showFavoritesOnly
       ? trailsWithFavorite.filter((trail) => trail._favorited)
@@ -180,20 +183,26 @@ export function TrailList() {
     {
       title: '收藏',
       dataIndex: '_favorited',
-      width: 70,
+      width: 100,
       align: 'center' as const,
-      render: (favorited: boolean) =>
-        favorited ? (
-          <IconStar style={{ color: '#FFC107' }} />
-        ) : (
-          <IconStarStroked style={{ color: 'rgba(0,0,0,0.25)' }} />
-        ),
+      render: (_favorited: boolean, record: Trail & { _favorited: boolean; _hasNote: boolean }) => (
+        <Space spacing={4} align="center">
+          {_favorited ? (
+            <IconStar style={{ color: '#FFC107' }} />
+          ) : (
+            <IconStarStroked style={{ color: 'rgba(0,0,0,0.25)' }} />
+          )}
+          {record._hasNote && (
+            <IconEditStroked style={{ color: '#1890ff' }} />
+          )}
+        </Space>
+      ),
     },
     {
       title: '路线名称',
       dataIndex: 'name',
       minWidth: 180,
-      render: (name: string, record: Trail & { _favorited: boolean }) => (
+      render: (name: string, record: Trail & { _favorited: boolean; _hasNote: boolean }) => (
         <Text strong style={{ whiteSpace: 'nowrap' }}>
           {name}
           {record._favorited && (
@@ -445,7 +454,7 @@ export function TrailList() {
           />
         ) : (
           <>
-            <Table<Trail & { _favorited: boolean }>
+            <Table<Trail & { _favorited: boolean; _hasNote: boolean }>
               columns={columns}
               dataSource={filteredTrails}
               rowKey="id"
