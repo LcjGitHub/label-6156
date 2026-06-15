@@ -55,6 +55,7 @@ export function TrailDetail() {
   }
 
   const elevationStats = calculateElevationStats(trail.elevationProfile);
+  const elevationValue = elevationStats.isValid ? (v: number) => `${v} m` : () => '—';
 
   const descriptionData = [
     { key: '名称', value: trail.name },
@@ -64,9 +65,9 @@ export function TrailDetail() {
     { key: '预计耗时', value: trail.duration },
     { key: '难度', value: trail.difficulty },
     { key: '采样点数', value: `${trail.elevationProfile.length} 个` },
-    { key: '最高海拔', value: `${elevationStats.maxElevation} m` },
-    { key: '最低海拔', value: `${elevationStats.minElevation} m` },
-    { key: '海拔落差', value: `${elevationStats.elevationDrop} m` },
+    { key: '最高海拔', value: elevationValue(elevationStats.maxElevation) },
+    { key: '最低海拔', value: elevationValue(elevationStats.minElevation) },
+    { key: '海拔落差', value: elevationValue(elevationStats.elevationDrop) },
   ];
 
   const profile = trail.elevationProfile;

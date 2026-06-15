@@ -152,6 +152,8 @@ export function findMaxElevationIndex(profile: ElevationPoint[]): number {
  * 海拔统计结果接口
  */
 export interface ElevationStats {
+  /** 是否为有效数据（海拔剖面数组非空） */
+  isValid: boolean;
   /** 最高海拔（米） */
   maxElevation: number;
   /** 最低海拔（米） */
@@ -164,7 +166,7 @@ export interface ElevationStats {
  * 根据海拔剖面数组计算海拔统计数据
  *
  * @param profile 海拔剖面采样点数组
- * @returns 海拔统计结果对象。若数组为空则所有值为 0。
+ * @returns 海拔统计结果对象。若数组为空则 isValid 为 false，数值字段为 0。
  *
  * @example
  * ```ts
@@ -174,12 +176,13 @@ export interface ElevationStats {
  *   { distance: 2, elevation: 200 },
  * ];
  * const stats = calculateElevationStats(profile);
- * // => { maxElevation: 300, minElevation: 100, elevationDrop: 200 }
+ * // => { isValid: true, maxElevation: 300, minElevation: 100, elevationDrop: 200 }
  * ```
  */
 export function calculateElevationStats(profile: ElevationPoint[]): ElevationStats {
   if (profile.length === 0) {
     return {
+      isValid: false,
       maxElevation: 0,
       minElevation: 0,
       elevationDrop: 0,
@@ -200,6 +203,7 @@ export function calculateElevationStats(profile: ElevationPoint[]): ElevationSta
   }
 
   return {
+    isValid: true,
     maxElevation,
     minElevation,
     elevationDrop: maxElevation - minElevation,
