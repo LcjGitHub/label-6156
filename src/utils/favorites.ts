@@ -1,16 +1,13 @@
-const STORAGE_KEY = 'trail-favorites';
+import { readStorage, writeStorage } from './storage';
+
+const STORAGE_KEY = 'favorites';
 
 /**
  * 从 localStorage 读取收藏的路线 ID 列表
  * @internal 内部工具函数
  */
 function readFavorites(): string[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+  return readStorage<string[]>(STORAGE_KEY, []);
 }
 
 /**
@@ -19,11 +16,7 @@ function readFavorites(): string[] {
  * @internal 内部工具函数
  */
 function writeFavorites(ids: string[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
-  } catch {
-    console.error('Failed to save favorites to localStorage');
-  }
+  writeStorage(STORAGE_KEY, ids);
 }
 
 /**

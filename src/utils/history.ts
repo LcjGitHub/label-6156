@@ -1,4 +1,6 @@
-const STORAGE_KEY = 'trail-history';
+import { readStorage, writeStorage } from './storage';
+
+const STORAGE_KEY = 'history';
 const MAX_HISTORY = 5;
 
 export interface HistoryItem {
@@ -7,20 +9,11 @@ export interface HistoryItem {
 }
 
 function readHistory(): HistoryItem[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+  return readStorage<HistoryItem[]>(STORAGE_KEY, []);
 }
 
 function writeHistory(items: HistoryItem[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  } catch {
-    console.error('Failed to save history to localStorage');
-  }
+  writeStorage(STORAGE_KEY, items);
 }
 
 export function getHistory(): HistoryItem[] {
