@@ -75,6 +75,8 @@ export interface TrailFilter {
   difficulty?: string;
   region?: string;
   keyword?: string;
+  minDistance?: number;
+  maxDistance?: number;
 }
 
 /**
@@ -92,6 +94,12 @@ export function filterTrails(trails: Trail[], filter: TrailFilter): Trail[] {
       return false;
     }
     if (trimmedKeyword && !fuzzyMatchKeyword(trail, trimmedKeyword)) {
+      return false;
+    }
+    if (filter.minDistance !== undefined && trail.distance < filter.minDistance) {
+      return false;
+    }
+    if (filter.maxDistance !== undefined && trail.distance > filter.maxDistance) {
       return false;
     }
     return true;

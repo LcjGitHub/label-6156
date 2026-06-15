@@ -1,6 +1,6 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { Table, Typography, Card, Switch, Space, Empty, Select, Button, Toast, Input } from '@douyinfe/semi-ui';
+import { Table, Typography, Card, Switch, Space, Empty, Select, Button, Toast, Input, InputNumber } from '@douyinfe/semi-ui';
 import { IconStar, IconStarStroked, IconRefresh, IconHistory, IconLayers, IconSearch, IconClose, IconEditStroked, IconBulb } from '@douyinfe/semi-icons';
 import type { Trail } from '../types/trail';
 import {
@@ -35,7 +35,7 @@ export function TrailList() {
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
 
-  const hasActiveFilter = !!(filter.difficulty || filter.region || filter.keyword);
+  const hasActiveFilter = !!(filter.difficulty || filter.region || filter.keyword || filter.minDistance !== undefined || filter.maxDistance !== undefined);
 
   const sortFieldLabelMap: Record<string, string> = {
     distance: '里程',
@@ -415,6 +415,24 @@ export function TrailList() {
               ...difficulties.map((d) => ({ value: d, label: d })),
             ]}
           />
+          <InputNumber
+            placeholder="最小里程"
+            style={{ width: 140 }}
+            min={0}
+            step={0.1}
+            value={filter.minDistance}
+            onChange={(value: string | number) => setFilter({ ...filter, minDistance: value !== '' ? Number(value) : undefined })}
+            suffix="km"
+          />
+          <InputNumber
+            placeholder="最大里程"
+            style={{ width: 140 }}
+            min={0}
+            step={0.1}
+            value={filter.maxDistance}
+            onChange={(value: string | number) => setFilter({ ...filter, maxDistance: value !== '' ? Number(value) : undefined })}
+            suffix="km"
+          />
           <Select
             placeholder="选择区域"
             style={{ width: 220 }}
@@ -435,7 +453,7 @@ export function TrailList() {
           <Button
             icon={<IconRefresh />}
             onClick={handleResetFilter}
-            disabled={!filter.difficulty && !filter.region && !filter.keyword}
+            disabled={!filter.difficulty && !filter.region && !filter.keyword && filter.minDistance === undefined && filter.maxDistance === undefined}
           >
             重置
           </Button>
@@ -447,9 +465,13 @@ export function TrailList() {
             <>
               （筛选条件：
               {filter.keyword && `关键词="${filter.keyword}"`}
-              {filter.keyword && (filter.difficulty || filter.region) && '，'}
+              {filter.keyword && (filter.difficulty || filter.region || filter.minDistance !== undefined || filter.maxDistance !== undefined) && '，'}
               {filter.difficulty && `难度=${filter.difficulty}`}
-              {filter.difficulty && filter.region && '，'}
+              {filter.difficulty && (filter.region || filter.minDistance !== undefined || filter.maxDistance !== undefined) && '，'}
+              {filter.minDistance !== undefined && `最小里程=${filter.minDistance}km`}
+              {filter.minDistance !== undefined && (filter.maxDistance !== undefined || filter.region) && '，'}
+              {filter.maxDistance !== undefined && `最大里程=${filter.maxDistance}km`}
+              {(filter.minDistance !== undefined || filter.maxDistance !== undefined) && filter.region && '，'}
               {filter.region && `区域=${filter.region}`}
               {`，共 ${filteredTrails.length} 条路线${sortDescription}）`}
             </>
@@ -458,9 +480,13 @@ export function TrailList() {
             <>
               （筛选条件：
               {filter.keyword && `关键词="${filter.keyword}"`}
-              {filter.keyword && (filter.difficulty || filter.region) && '，'}
+              {filter.keyword && (filter.difficulty || filter.region || filter.minDistance !== undefined || filter.maxDistance !== undefined) && '，'}
               {filter.difficulty && `难度=${filter.difficulty}`}
-              {filter.difficulty && filter.region && '，'}
+              {filter.difficulty && (filter.region || filter.minDistance !== undefined || filter.maxDistance !== undefined) && '，'}
+              {filter.minDistance !== undefined && `最小里程=${filter.minDistance}km`}
+              {filter.minDistance !== undefined && (filter.maxDistance !== undefined || filter.region) && '，'}
+              {filter.maxDistance !== undefined && `最大里程=${filter.maxDistance}km`}
+              {(filter.minDistance !== undefined || filter.maxDistance !== undefined) && filter.region && '，'}
               {filter.region && `区域=${filter.region}`}
               {`，共 ${filteredTrails.length} 条收藏路线${sortDescription}）`}
             </>
