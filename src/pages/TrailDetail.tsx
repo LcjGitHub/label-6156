@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Button, Card, Descriptions, Typography, Empty, Toast } from '@douyinfe/semi-ui';
-import { IconArrowLeft, IconStar, IconStarFill } from '@douyinfe/semi-icons';
+import { IconArrowLeft, IconStar, IconStarStroked } from '@douyinfe/semi-icons';
 import { ElevationChart } from '../components/ElevationChart';
 import { getTrailById } from '../utils/trails';
 import { isFavorite, toggleFavorite } from '../utils/favorites';
@@ -75,7 +75,7 @@ export function TrailDetail() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Title heading={3} style={{ margin: 0 }}>{trail.name}</Title>
           <Button
-            icon={favorited ? <IconStarFill style={{ color: '#FFC107' }} /> : <IconStar />}
+            icon={favorited ? <IconStar style={{ color: '#FFC107' }} /> : <IconStarStroked />}
             theme={favorited ? 'solid' : 'borderless'}
             onClick={handleToggleFavorite}
           >
