@@ -253,6 +253,36 @@ export function sortByField<T extends Record<string, any>>(
  * @param targetField 目标排序字段
  * @returns 新的排序字段和方向
  */
+export interface RecommendFilter {
+  difficulty?: string;
+  minDistance?: number;
+  maxDistance?: number;
+}
+
+export function recommendTrails(
+  trails: Trail[],
+  filter: RecommendFilter,
+  favoriteIds: string[]
+): Trail[] {
+  return trails
+    .filter((trail) => {
+      if (filter.difficulty && trail.difficulty !== filter.difficulty) {
+        return false;
+      }
+      if (filter.minDistance !== undefined && trail.distance < filter.minDistance) {
+        return false;
+      }
+      if (filter.maxDistance !== undefined && trail.distance > filter.maxDistance) {
+        return false;
+      }
+      if (favoriteIds.includes(trail.id)) {
+        return false;
+      }
+      return true;
+    })
+    .sort((a, b) => a.elevationGain - b.elevationGain);
+}
+
 export function toggleSortState(
   currentField: string | null,
   currentDirection: SortDirection,

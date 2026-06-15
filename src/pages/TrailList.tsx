@@ -1,7 +1,7 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Table, Typography, Card, Switch, Space, Empty, Select, Button, Toast, Input } from '@douyinfe/semi-ui';
-import { IconStar, IconStarStroked, IconRefresh, IconHistory, IconLayers, IconSearch, IconClose, IconEditStroked } from '@douyinfe/semi-icons';
+import { IconStar, IconStarStroked, IconRefresh, IconHistory, IconLayers, IconSearch, IconClose, IconEditStroked, IconBulb } from '@douyinfe/semi-icons';
 import type { Trail } from '../types/trail';
 import {
   getAllTrails,
@@ -279,6 +279,22 @@ export function TrailList() {
               }}
             >
               数据统计
+            </Link>
+            <Link
+              to="/recommend"
+              aria-label="跳转到路线智能推荐页面"
+              style={{
+                fontSize: 14,
+                whiteSpace: 'nowrap',
+                color: 'var(--semi-color-link)',
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+              }}
+            >
+              <IconBulb style={{ fontSize: 14 }} />
+              智能推荐
             </Link>
           </div>
           <Space>
