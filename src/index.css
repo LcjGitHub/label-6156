@@ -33,3 +33,15 @@ body {
   max-width: 1100px;
   margin: 0 auto;
 }
+
+.history-tag {
+  transition: all 0.2s ease;
+}
+
+.history-tag:hover {
+  transform: translateY(-1px);
+}
+
+.history-tag:hover .semi-tag-blue {
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+}

@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { Table, Typography, Card, Switch, Space, Empty, Select, Button } from '@douyinfe/semi-ui';
-import { IconStar, IconStarStroked, IconRefresh } from '@douyinfe/semi-icons';
+import { Table, Typography, Card, Switch, Space, Empty, Select, Button, Tag } from '@douyinfe/semi-ui';
+import { IconStar, IconStarStroked, IconRefresh, IconHistory } from '@douyinfe/semi-icons';
 import type { Trail } from '../types/trail';
 import { getAllTrails, getAllDifficulties, getGroupedRegions, filterTrails, type TrailFilter } from '../utils/trails';
 import { getFavoriteIds } from '../utils/favorites';
+import { getHistory, type HistoryItem } from '../utils/history';
 
 const { Title, Text } = Typography;
 
@@ -19,6 +20,7 @@ export function TrailList() {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [filter, setFilter] = useState<TrailFilter>({});
   const [refreshTick, setRefreshTick] = useState(0);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
 
   const hasActiveFilter = !!(filter.difficulty || filter.region);
 
@@ -26,23 +28,35 @@ export function TrailList() {
     setRefreshTick((t) => t + 1);
   }, []);
 
+  const refreshHistory = useCallback(() => {
+    setHistory(getHistory());
+  }, []);
+
   const handleResetFilter = useCallback(() => {
     setFilter({});
   }, []);
 
   useEffect(() => {
+    refreshHistory();
+  }, [refreshHistory]);
+
+  useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') {
         refreshFavorites();
+        refreshHistory();
       }
     };
     window.addEventListener('visibilitychange', handleVisibility);
-    window.addEventListener('focus', refreshFavorites);
+    window.addEventListener('focus', () => {
+      refreshFavorites();
+      refreshHistory();
+    });
     return () => {
       window.removeEventListener('visibilitychange', handleVisibility);
       window.removeEventListener('focus', refreshFavorites);
     };
-  }, [refreshFavorites]);
+  }, [refreshFavorites, refreshHistory]);
 
   const filteredTrails = useMemo(() => {
     const favoriteIds = getFavoriteIds();
@@ -126,6 +140,41 @@ export function TrailList() {
             />
           </Space>
         </div>
+        {history.length > 0 && (
+          <div style={{ marginBottom: 16, padding: 16, backgroundColor: 'rgba(24, 144, 255, 0.04)', borderRadius: 6, border: '1px solid rgba(24, 144, 255, 0.1)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <Space>
+                <IconHistory style={{ color: '#1890ff' }} />
+                <Text strong style={{ color: '#1890ff' }}>最近浏览：</Text>
+              </Space>
+              <Space wrap>
+                {history.map((item) => (
+                  <span
+                    key={item.id}
+                    className="history-tag"
+                    style={{
+                      cursor: 'pointer',
+                      display: 'inline-block',
+                    }}
+                    onClick={() => navigate(`/trail/${item.id}`)}
+                  >
+                    <Tag
+                      color="blue"
+                      size="large"
+                      style={{
+                        padding: '4px 14px',
+                        fontSize: 14,
+                        borderRadius: 16,
+                      }}
+                    >
+                      {item.name}
+                    </Tag>
+                  </span>
+                ))}
+              </Space>
+            </div>
+          </div>
+        )}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, padding: 16, backgroundColor: 'rgba(0,0,0,0.02)', borderRadius: 6 }}>
           <Text strong style={{ whiteSpace: 'nowrap' }}>筛选条件：</Text>
           <Select

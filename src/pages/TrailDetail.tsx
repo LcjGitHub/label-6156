@@ -5,6 +5,7 @@ import { IconArrowLeft, IconStar, IconStarStroked } from '@douyinfe/semi-icons';
 import { ElevationChart, type ChartMarkerPoint } from '../components/ElevationChart';
 import { getTrailById, findMaxElevationIndex } from '../utils/trails';
 import { isFavorite, toggleFavorite } from '../utils/favorites';
+import { addHistory } from '../utils/history';
 
 const { Title, Paragraph } = Typography;
 
@@ -20,8 +21,11 @@ export function TrailDetail() {
   useEffect(() => {
     if (id) {
       setFavorited(isFavorite(id));
+      if (trail) {
+        addHistory(id, trail.name);
+      }
     }
-  }, [id]);
+  }, [id, trail]);
 
   const handleToggleFavorite = () => {
     if (!id) return;
