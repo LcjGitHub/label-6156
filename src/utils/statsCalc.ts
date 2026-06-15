@@ -1,16 +1,37 @@
 import type { Trail } from '../types/trail';
 import { getAllTrails } from './trails';
 
+/**
+ * 路线统计汇总结果
+ */
 export interface TrailStatsSummary {
+  /** 路线总条数 */
   totalCount: number;
+  /** 总里程合计（公里） */
   totalDistance: number;
+  /** 平均爬升（米） */
   avgElevationGain: number;
+  /** 爬升最高的路线信息，无数据时为 null */
   maxElevationGainTrail: {
+    /** 路线名称 */
     name: string;
+    /** 爬升数值（米） */
     value: number;
   } | null;
 }
 
+/**
+ * 计算全部路线的统计汇总数据
+ *
+ * @param trails 可选的路线列表，若不传入则自动读取全部路线数据
+ * @returns 统计汇总结果对象，包含总条数、总里程、平均爬升、爬升最高路线
+ *
+ * @example
+ * ```ts
+ * const stats = calculateTrailStats();
+ * // => { totalCount: 10, totalDistance: 110.5, avgElevationGain: 804.4, maxElevationGainTrail: {...} }
+ * ```
+ */
 export function calculateTrailStats(trails?: Trail[]): TrailStatsSummary {
   const data = trails ?? getAllTrails();
 

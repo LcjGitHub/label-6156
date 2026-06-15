@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Table, Typography, Card, Switch, Space, Empty, Select, Button, Tag, Toast, Input } from '@douyinfe/semi-ui';
 import { IconStar, IconStarStroked, IconRefresh, IconHistory, IconLayers, IconSearch, IconClose } from '@douyinfe/semi-icons';
@@ -254,13 +254,18 @@ export function TrailList() {
             <Title heading={3} style={{ margin: 0 }}>
               徒步路线列表
             </Title>
-            <Text
-              link
-              style={{ fontSize: 14, whiteSpace: 'nowrap' }}
-              onClick={() => navigate('/stats')}
+            <Link
+              to="/stats"
+              aria-label="跳转到路线数据统计页面"
+              style={{
+                fontSize: 14,
+                whiteSpace: 'nowrap',
+                color: 'var(--semi-color-link)',
+                textDecoration: 'none',
+              }}
             >
               数据统计
-            </Text>
+            </Link>
           </div>
           <Space>
             {showFavoritesOnly ? (
